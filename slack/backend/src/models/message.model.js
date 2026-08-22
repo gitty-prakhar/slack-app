@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
-const messageSchema = new mongoose.Schema(
+const messageSchema=new mongoose.Schema(
     {
-        channel: {
+        channel:{
             type:mongoose.Schema.Types.ObjectId,
             ref:"Channel",
             required:true,
@@ -22,8 +22,8 @@ const messageSchema = new mongoose.Schema(
         },
         parentMessage:{
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Message",
-            default: null,
+            ref:"Message",
+            default:null,
         },
         reactions:[
             {
