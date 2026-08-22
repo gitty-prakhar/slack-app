@@ -6,25 +6,23 @@ import logger from "./utils/logger.js";
 let io;
 
 //passing my http server to socket io
-//Create a Socket.IO server on my existing Node HTTP server and 
-//allow my frontend to establish cross-origin Socket.IO connections including credentials and cookies
+//create a Socket.IO server on my existing node http server and 
+//allow my frontend to establish cross origin socket.io connections including credentials and cookies
 export const initSocket=(server)=>{
     io=new Server(server,{
         cors:{
-            origin:true,//Allow frontend origin
+            origin:true,//allow frontend origin
             credentials:true
         }
     });
 
-
-    //Authenticate socket connection
+    //authenticate socket connection
     io.use(async(socket,next)=>{
         try{
-            //Extract token from auth headers or cookies (basic parse for hackathon)
-            const token=socket.handshake.auth.token|| 
-                          (socket.handshake.headers.cookie && socket.handshake.headers.cookie.split('accessToken=')[1]?.split(';')[0]);
+            //extract token from auth headers or cookies (basic parse for hackathon)
+            const token=socket.handshake.auth.token||(socket.handshake.headers.cookie && socket.handshake.headers.cookie.split('accessToken=')[1]?.split(';')[0]);
                           
-            if(!token) return next(new Error("Authentication error"));
+            if(!token)return next(new Error("Authentication error"));
 
             const decoded=jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
             const user=await User.findById(decoded._id).select("-password");
@@ -81,8 +79,8 @@ export const initSocket=(server)=>{
     return io;
 };
 
-// we have not just dierctly exported it because initially it was undefned 
-// so first check then export
+//we have not just dierctly exported it because initially it was undefned 
+//so first check then export
 export const getIO=()=>{
     if(!io){
         throw new Error("Socket.io not initialized!");
