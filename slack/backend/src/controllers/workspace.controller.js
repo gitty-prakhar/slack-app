@@ -1,6 +1,7 @@
 import { Workspace } from "../models/workspace.model.js";
 import { Member } from "../models/member.model.js";
 import { Channel } from "../models/channel.model.js";
+import { Message } from "../models/message.model.js";
 import { ApiError } from "../utils/apiError.js";
 import { APIResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -14,6 +15,7 @@ const createWorkspace=asyncHandler(async(req,res)=>{
     }
 
     const slug=name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Date.now();
+    //will use slug for creatig name in url for easy access like slack.com/workspace/prakhar-workspace-123456
 
     const workspace=await Workspace.create({name,description,slug,owner:req.user._id});
 
@@ -29,7 +31,7 @@ const createWorkspace=asyncHandler(async(req,res)=>{
     return res.status(201).json(new APIResponse(201,workspace,"Workspace created successfully"));
 });
 
-// Get user's workspaces
+//get user's workspaces
 const getUserWorkspaces=asyncHandler(async(req,res)=>{
     const memberships=await Member.find({user:req.user._id}).populate("workspace");
     const workspaces=memberships.map(m=>m.workspace);
@@ -37,7 +39,7 @@ const getUserWorkspaces=asyncHandler(async(req,res)=>{
     return res.status(200).json(new APIResponse(200,workspaces,"User workspaces fetched successfully"));
 });
 
-// Get single workspace
+//get single workspace
 const getWorkspace=asyncHandler(async(req,res)=>{
     const{workspaceId}=req.params;
 
@@ -47,7 +49,7 @@ const getWorkspace=asyncHandler(async(req,res)=>{
         throw new ApiError(404,"Workspace not found");
     }
 
-    // Check if user is a member
+    //check if user is a member
     const isMember=await Member.findOne({workspace:workspaceId,user:req.user._id});
     if(!isMember){
         throw new ApiError(403,"You are not a member of this workspace");
@@ -56,7 +58,7 @@ const getWorkspace=asyncHandler(async(req,res)=>{
     return res.status(200).json(new APIResponse(200,workspace,"Workspace fetched successfully"));
 });
 
-// Join workspace
+//join workspace
 const joinWorkspace=asyncHandler(async(req,res)=>{
     const{workspaceId}=req.params;
 
@@ -79,7 +81,7 @@ const joinWorkspace=asyncHandler(async(req,res)=>{
     return res.status(200).json(new APIResponse(200,member,"Successfully joined workspace"));
 });
 
-// Get workspace members
+//get workspace members
 const getWorkspaceMembers=asyncHandler(async(req,res)=>{
     const{workspaceId}=req.params;
 
@@ -88,4 +90,39 @@ const getWorkspaceMembers=asyncHandler(async(req,res)=>{
     return res.status(200).json(new APIResponse(200,members,"Workspace members fetched successfully"));
 });
 
-export{createWorkspace,getUserWorkspaces,getWorkspace,joinWorkspace,getWorkspaceMembers};
+//delete workspace
+const deleteWorkspace=asyncHandler(async(req,res)=>{
+    const{workspaceId}=req.params;
+
+    const workspace=await Workspace.findById(workspaceId);
+    if(!workspace){
+        throw new ApiError(404,"Workspace not found");
+    }
+
+    //only owner can delete workspace
+    if(workspace.owner.toString()!==req.user._id.toString()){
+        throw new ApiError(403,"Only the workspace owner can delete this workspace");
+    }
+
+    //1. get all channels in this workspace
+    const channels=await Channel.find({workspace:workspaceId});
+    const channelIds=channels.map(c=>c._id);
+
+    //2. delete all messages in those channels
+    if(channelIds.length>0){
+        await Message.deleteMany({channel:{$in:channelIds}});
+    }
+
+    //3. delete all channels
+    await Channel.deleteMany({workspace:workspaceId});
+
+    //4. delete all members
+    await Member.deleteMany({workspace:workspaceId});
+
+    //5. delete workspace
+    await Workspace.findByIdAndDelete(workspaceId);
+
+    return res.status(200).json(new APIResponse(200,{},"Workspace and all associated data deleted successfully"));
+});
+
+export{createWorkspace,getUserWorkspaces,getWorkspace,joinWorkspace,getWorkspaceMembers,deleteWorkspace};

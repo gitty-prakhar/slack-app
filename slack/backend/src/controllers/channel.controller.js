@@ -13,7 +13,7 @@ const createChannel=asyncHandler(async(req,res)=>{
         throw new ApiError(400,"Channel name is required");
     }
 
-    // Verify user is member of workspace
+    //verify user is member of workspace
     const isWorkspaceMember=await Member.findOne({workspace:workspaceId,user:req.user._id});
     if(!isWorkspaceMember){
         throw new ApiError(403,"You must be a member of the workspace to create a channel");
