@@ -1,19 +1,16 @@
-import { ApiError } from "../utils/apiError.js";
+//errorHandler is a middleware that handles errors
+//without this the app will crash if an error occurs
+//this will provide a custom error response
+//the errorhandler is defined last in the code
+//so it can catch errors from all the other middlewares and routes
+export const errorHandler=(err,req,res,next)=>{
+    const statusCode=err.statusCode||500;
+    const message=err.message||"Internal Server Error";
 
-export const errorHandler = (err, req, res, next) => {
-    let error = err;
-
-    if (!(error instanceof ApiError)) {
-        const statusCode = error.statusCode ? error.statusCode : 500;
-        const message = error.message || "Something went wrong";
-        error = new ApiError(statusCode, message, error?.errors || [], err.stack);
-    }
-
-    const response = {
-        ...error,
-        message: error.message,
-        ...(process.env.NODE_ENV === "development" ? { stack: error.stack } : {}),
-    };
-
-    return res.status(error.statusCode).json(response);
+    return res.status(statusCode).json({
+        success:false,
+        statusCode,
+        message,
+        errors:err.errors||[],
+    });
 };
