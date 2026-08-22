@@ -17,9 +17,11 @@ const useMessageStore = create((set, get) => ({
         }
     },
 
-    searchMessages: async (query) => {
+    searchMessages: async (query, workspaceId) => {
         try {
-            const { data } = await api.get(`/messages/search?q=${encodeURIComponent(query)}`);
+            let url = `/messages/search?q=${encodeURIComponent(query)}`;
+            if (workspaceId) url += `&workspaceId=${workspaceId}`;
+            const { data } = await api.get(url);
             return data.data;
         } catch (error) {
             console.error("Search failed:", error);

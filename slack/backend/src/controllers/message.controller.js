@@ -171,17 +171,24 @@ const replyMessage = asyncHandler(async (req, res) => {
 
 // Search messages
 const searchMessages = asyncHandler(async (req, res) => {
-    const { q } = req.query;
+    const { q, workspaceId } = req.query;
 
     if (!q) {
         throw new ApiError(400, "Search query is required");
     }
 
-    // Perform case-insensitive regex search
-    const messages = await Message.find({
+    let filter = {
         content: { $regex: q, $options: "i" },
         isDeleted: false
-    })
+    };
+
+    if (workspaceId) {
+        const channels = await Channel.find({ workspace: workspaceId });
+        filter.channel = { $in: channels.map(c => c._id) };
+    }
+
+    // Perform case-insensitive regex search
+    const messages = await Message.find(filter)
         .populate("sender", "username displayName avatar")
         .populate("channel", "name")
         .limit(20);

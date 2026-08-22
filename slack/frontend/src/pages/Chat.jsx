@@ -75,7 +75,7 @@ export default function Chat() {
         e.preventDefault();
         if (!searchQuery.trim()) return;
         setIsSearching(true);
-        const results = await searchMessages(searchQuery);
+        const results = await searchMessages(searchQuery, activeWorkspace?._id);
         setSearchResults(results);
         setIsSearching(false);
     };
