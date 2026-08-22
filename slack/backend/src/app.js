@@ -29,3 +29,15 @@ app.use(express.json({limit:"16kb"}));  //this middleware parses incoming json h
 app.use(express.urlencoded({extended:true,limit:"16kb"}));  //this middleware parses incoming url encoded data  extended=true allows nested objects
 
 app.use(cookieParser()); //this middleware parses incoming cookies from the browser stores them in req.cookies
+
+// routes import
+import userRouter from "./routes/user.routes.js";
+
+// routes declaration
+app.use("/api/v1/users", userRouter);
+
+// Error handling middleware
+import { errorHandler } from "./middlewares/error.middleware.js";
+app.use(errorHandler);
+
+export default app;

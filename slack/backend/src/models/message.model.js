@@ -20,7 +20,7 @@ const messageSchema = new mongoose.Schema(
             type:Boolean,
             default:false,
         },
-        parentMessage: {
+        parentMessage:{
             type: mongoose.Schema.Types.ObjectId,
             ref: "Message",
             default: null,
