@@ -1,10 +1,13 @@
+import logger from "../utils/logger.js";
+
 //errorHandler is a middleware that handles errors
 //without this the app will crash if an error occurs
-//this will provide a custom error response
-//the errorhandler is defined last in the code
-//so it can catch errors from all the other middlewares and routes
 export const errorHandler=(err,req,res,next)=>{
     let statusCode=err.statusCode||500;
+    
+    if (statusCode >= 500) {
+        logger.error("ERROR CAUGHT IN errorHandler: " + err.stack);
+    }
     let message=err.message||"Internal Server Error";
     let errors=err.errors||[];
 
