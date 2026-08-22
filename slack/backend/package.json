@@ -9,7 +9,7 @@
     "start": "node src/index.js",
     "worker": "node src/queues/emailWorker.js"
   },
-  "dependencies": {
+  "devDependencies": {
     "bcrypt": "^6.0.0",
     "bullmq": "^6.2.0",
     "cookie-parser": "^1.4.7",
