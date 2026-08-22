@@ -187,7 +187,11 @@ export default function Chat() {
                                             )}
                                             {searchResults.map(msg => (
                                                 <div key={msg._id} style={{ padding: 12, borderBottom: "1px solid var(--border)", display: "flex", gap: 12 }}>
-                                                    <div className="avatar sm">{msg.sender?.username?.[0]?.toUpperCase()}</div>
+                                                    {msg.sender?.avatar ? (
+                                                        <img src={msg.sender.avatar} alt="avatar" className="avatar sm" style={{ objectFit: "cover" }} />
+                                                    ) : (
+                                                        <div className="avatar sm">{msg.sender?.username?.[0]?.toUpperCase()}</div>
+                                                    )}
                                                     <div>
                                                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                                             <strong style={{ fontSize: 14 }}>{msg.sender?.displayName || msg.sender?.username}</strong>

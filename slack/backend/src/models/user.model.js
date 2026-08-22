@@ -52,9 +52,13 @@ const userSchema=new mongoose.Schema(
         },
 
         //email verification (2FA registration)
-        isVerified:{
-            type:Boolean,
-            default:false,
+        isVerified: {
+            type: Boolean,
+            default: false
+        },
+        avatar: {
+            type: String, // Cloudinary URL
+            default: ""
         },
         verificationOtp:{
             type:String,

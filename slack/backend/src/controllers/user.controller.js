@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { emailQueue } from "../queues/emailQueue.js";
 import { ApiError } from "../utils/apiError.js";
 import { APIResponse } from "../utils/apiResponse.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 
 //helper function to generate tokens
@@ -307,4 +308,31 @@ const updateProfile=asyncHandler(async(req,res)=>{
     );
 });
 
-export{registerUser,verifyRegistration,loginUser,logoutUser,refreshAccessToken,getCurrentUser,changeCurrentPassword,forgotPassword,resetPassword,updateProfile};
+//update avatar
+const updateUserAvatar = asyncHandler(async (req, res) => {
+    const avatarLocalPath = req.file?.path;
+
+    if (!avatarLocalPath) {
+        throw new ApiError(400, "Avatar file is missing");
+    }
+
+    const avatar = await uploadOnCloudinary(avatarLocalPath);
+
+    if (!avatar?.url) {
+        throw new ApiError(500, "Error while uploading avatar to Cloudinary");
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: { avatar: avatar.url }
+        },
+        { new: true }
+    ).select("-password -refreshToken");
+
+    return res.status(200).json(
+        new APIResponse(200, user, "Avatar image updated successfully")
+    );
+});
+
+export{registerUser,verifyRegistration,loginUser,logoutUser,refreshAccessToken,getCurrentUser,changeCurrentPassword,forgotPassword,resetPassword,updateProfile,updateUserAvatar};

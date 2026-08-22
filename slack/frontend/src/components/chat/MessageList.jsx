@@ -5,6 +5,9 @@ import useAuthStore from "../../store/authStore";
 import api from "../../lib/api";
 
 function getAvatar(user) {
+    if (user?.avatar) {
+        return <img src={user.avatar} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} />;
+    }
     return user?.username?.[0]?.toUpperCase() || "?";
 }
 

@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { registerUser, verifyRegistration, loginUser, logoutUser, refreshAccessToken, getCurrentUser, changeCurrentPassword, forgotPassword, resetPassword, updateProfile } from "../controllers/user.controller.js";
+import { registerUser, verifyRegistration, loginUser, logoutUser, refreshAccessToken, getCurrentUser, changeCurrentPassword, forgotPassword, resetPassword, updateProfile, updateUserAvatar } from "../controllers/user.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { authLimiter } from "../middlewares/rateLimiter.middleware.js";
 import { validate, registerSchema, loginSchema } from "../middlewares/validate.middleware.js";
+import { upload } from "../middlewares/multer.middleware.js";
 
 /**
  * @swagger
@@ -37,5 +38,6 @@ router.route("/logout").post(verifyJWT,logoutUser);
 router.route("/me").get(verifyJWT,getCurrentUser);
 router.route("/change-password").patch(verifyJWT,changeCurrentPassword);
 router.route("/profile").patch(verifyJWT,updateProfile);
+router.route("/avatar").patch(verifyJWT,upload.single("avatar"),updateUserAvatar);
 
 export default router;

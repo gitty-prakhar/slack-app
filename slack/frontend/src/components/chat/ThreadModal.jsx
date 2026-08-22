@@ -62,7 +62,11 @@ export default function ThreadModal({ parentMessage, onClose }) {
                     {/* Parent Message */}
                     <div style={{ paddingBottom: 16, borderBottom: "1px solid var(--border)", marginBottom: 16 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-                            <div className="avatar sm">{parentMessage.sender?.username?.[0]?.toUpperCase()}</div>
+                            {parentMessage.sender?.avatar ? (
+                                <img src={parentMessage.sender.avatar} alt="avatar" className="avatar sm" style={{ objectFit: "cover" }} />
+                            ) : (
+                                <div className="avatar sm">{parentMessage.sender?.username?.[0]?.toUpperCase()}</div>
+                            )}
                             <strong style={{ fontSize: 14 }}>{parentMessage.sender?.displayName || parentMessage.sender?.username}</strong>
                         </div>
                         <p style={{ margin: 0, fontSize: 15, paddingLeft: 40, color: "#fff" }}>{parentMessage.content}</p>
@@ -74,7 +78,11 @@ export default function ThreadModal({ parentMessage, onClose }) {
                         {replies.map((reply) => (
                             <div key={reply._id} style={{ marginBottom: 16 }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                                    <div className="avatar sm" style={{ width: 24, height: 24, fontSize: 10 }}>{reply.sender?.username?.[0]?.toUpperCase()}</div>
+                                    {reply.sender?.avatar ? (
+                                        <img src={reply.sender.avatar} alt="avatar" className="avatar sm" style={{ width: 24, height: 24, objectFit: "cover" }} />
+                                    ) : (
+                                        <div className="avatar sm" style={{ width: 24, height: 24, fontSize: 10 }}>{reply.sender?.username?.[0]?.toUpperCase()}</div>
+                                    )}
                                     <strong style={{ fontSize: 13 }}>{reply.sender?.displayName || reply.sender?.username}</strong>
                                 </div>
                                 <p style={{ margin: 0, fontSize: 14, paddingLeft: 32, color: "#ddd" }}>{reply.content}</p>

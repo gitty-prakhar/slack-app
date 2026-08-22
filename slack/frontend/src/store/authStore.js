@@ -41,10 +41,18 @@ const useAuthStore = create((set, get) => ({
         }
     },
 
-    updateProfile: async (payload) => {
-        const { data } = await api.patch("/users/profile", payload);
-        set({ user: data.data });
-        return data.data;
+    updateProfile: async (data) => {
+        const res = await api.patch("/users/profile", data);
+        set({ user: res.data.data });
+    },
+
+    uploadAvatar: async (file) => {
+        const formData = new FormData();
+        formData.append("avatar", file);
+        const res = await api.patch("/users/avatar", formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+        set({ user: res.data.data });
     },
 }));
 

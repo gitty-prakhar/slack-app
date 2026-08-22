@@ -20,7 +20,8 @@ export default function Sidebar({ onChannelSelect }) {
     const [showPasswordForm, setShowPasswordForm] = useState(false);
     const [profileForm, setProfileForm] = useState({ displayName: "", bio: "", instagramId: "" });
     const [passwordForm, setPasswordForm] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
-    const { updateProfile } = useAuthStore();
+    const { updateProfile, uploadAvatar } = useAuthStore();
+    const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
     const handleChannelClick = (ch) => {
         setActiveChannel(ch);
@@ -90,6 +91,19 @@ export default function Sidebar({ onChannelSelect }) {
             setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
         } catch (err) {
             alert(err.response?.data?.message || "Failed to change password");
+        }
+    };
+
+    const handleAvatarChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setUploadingAvatar(true);
+        try {
+            await uploadAvatar(file);
+        } catch (err) {
+            alert(err.response?.data?.message || "Failed to upload avatar");
+        } finally {
+            setUploadingAvatar(false);
         }
     };
 
@@ -193,7 +207,11 @@ export default function Sidebar({ onChannelSelect }) {
 
             {/* User footer */}
             <div className="sidebar-user" onClick={handleOpenProfile} title="View Profile">
-                <div className="avatar sm online">{user?.username?.[0]?.toUpperCase()}</div>
+                {user?.avatar ? (
+                    <img src={user.avatar} alt="avatar" className="avatar sm online" style={{ objectFit: "cover" }} />
+                ) : (
+                    <div className="avatar sm online">{user?.username?.[0]?.toUpperCase()}</div>
+                )}
                 <div className="sidebar-user-info">
                     <div className="name">{user?.username}</div>
                     <div className="status">Active</div>
@@ -210,7 +228,27 @@ export default function Sidebar({ onChannelSelect }) {
                         </div>
                         <div className="modal-body">
                             <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24, paddingBottom: 16, borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-                                <div className="avatar lg" style={{ width: 56, height: 56, fontSize: 24 }}>{user?.username?.[0]?.toUpperCase()}</div>
+                                <label style={{ position: "relative", cursor: uploadingAvatar ? "wait" : "pointer", display: "inline-block" }}>
+                                    {user?.avatar ? (
+                                        <img src={user.avatar} alt="avatar" className="avatar lg" style={{ width: 56, height: 56, objectFit: "cover", opacity: uploadingAvatar ? 0.5 : 1 }} />
+                                    ) : (
+                                        <div className="avatar lg" style={{ width: 56, height: 56, fontSize: 24, opacity: uploadingAvatar ? 0.5 : 1 }}>
+                                            {user?.username?.[0]?.toUpperCase()}
+                                        </div>
+                                    )}
+                                    <input 
+                                        type="file" 
+                                        accept="image/*" 
+                                        style={{ display: "none" }} 
+                                        onChange={handleAvatarChange}
+                                        disabled={uploadingAvatar}
+                                    />
+                                    {uploadingAvatar && (
+                                        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", fontSize: 12 }}>
+                                            ⏳
+                                        </div>
+                                    )}
+                                </label>
                                 <div>
                                     <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>{user?.displayName || user?.username}</h3>
                                     <p style={{ margin: "4px 0 0 0", color: "var(--text-secondary)", fontSize: 14 }}>@{user?.username}</p>
