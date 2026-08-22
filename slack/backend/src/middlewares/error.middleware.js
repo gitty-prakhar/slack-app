@@ -4,13 +4,41 @@
 //the errorhandler is defined last in the code
 //so it can catch errors from all the other middlewares and routes
 export const errorHandler=(err,req,res,next)=>{
-    const statusCode=err.statusCode||500;
-    const message=err.message||"Internal Server Error";
+    let statusCode=err.statusCode||500;
+    let message=err.message||"Internal Server Error";
+    let errors=err.errors||[];
+
+    //handle mongoose duplicate key errors globally (E11000)
+    if(err.code===11000&&err.keyValue){
+        statusCode=409; //conflict
+        const fields=Object.keys(err.keyValue);
+        
+        //if the duplicate index involves multiple fields (like workspace+name or workspace+user)
+        if(fields.length>1){
+            if(fields.includes('workspace')&&fields.includes('name')){
+                message=`A channel with the name '${err.keyValue.name}' already exists in this workspace.`;
+            }else if(fields.includes('workspace')&&fields.includes('user')){
+                message="This user is already a member of this workspace.";
+            }else{
+                message="A record with these details already exists.";
+            }
+        }else{
+            //single field duplicate (like email, username, slug)
+            const field=fields[0];
+            message=`${field.charAt(0).toUpperCase()+field.slice(1)} '${err.keyValue[field]}' already exists. Please use a different one.`;
+        }
+    }
+
+    //handle mongoose validation errors globally
+    if(err.name==="ValidationError"){
+        statusCode=400; //bad request
+        message=Object.values(err.errors).map(val=>val.message).join(", ");
+    }
 
     return res.status(statusCode).json({
         success:false,
         statusCode,
         message,
-        errors:err.errors||[],
+        errors,
     });
 };

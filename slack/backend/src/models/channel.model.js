@@ -42,6 +42,7 @@ const channelSchema=new mongoose.Schema(
 );
 
 //for ensuring channel names are unique within a workspace
+//create a compound index on workspace+ name and make this combination unique
 channelSchema.index({workspace:1,name:1},{unique:true});
 
 export const Channel=mongoose.model("Channel",channelSchema);
