@@ -63,6 +63,19 @@ const useWorkspaceStore = create((set, get) => ({
         return data.data;
     },
 
+    deleteWorkspace: async (workspaceId) => {
+        await api.delete(`/workspaces/${workspaceId}`);
+        set((s) => ({
+            workspaces: s.workspaces.filter((ws) => ws._id !== workspaceId),
+            activeWorkspace: s.activeWorkspace?._id === workspaceId ? null : s.activeWorkspace
+        }));
+    },
+
+    joinWorkspace: async (workspaceId) => {
+        await api.post(`/workspaces/${workspaceId}/join`);
+        await get().fetchWorkspaces();
+    },
+
     createChannel: async (workspaceId, payload) => {
         const { data } = await api.post(`/channels/workspace/${workspaceId}`, payload);
         set((s) => ({ channels: [...s.channels, data.data] }));
