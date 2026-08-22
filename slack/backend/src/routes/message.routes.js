@@ -6,7 +6,8 @@ import {
     toggleReaction, 
     replyMessage, 
     searchMessages, 
-    markAsRead 
+    markAsRead,
+    getReplies
 } from "../controllers/message.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { validate, sendMessageSchema } from "../middlewares/validate.middleware.js";
@@ -26,6 +27,9 @@ router.route("/:channelId")
 
 router.route("/:messageId")
     .delete(deleteMessage);
+
+router.route("/:messageId/replies")
+    .get(getReplies);
 
 router.route("/:messageId/react")
     .post(toggleReaction);

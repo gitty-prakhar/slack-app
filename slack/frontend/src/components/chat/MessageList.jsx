@@ -28,7 +28,7 @@ function Reaction({ emoji, users, myId, onToggle }) {
     );
 }
 
-function Message({ msg, isGrouped, myId, onReact, onDelete }) {
+function Message({ msg, isGrouped, myId, onReact, onDelete, onReply }) {
     const [showEmoji, setShowEmoji] = useState(false);
     const EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "🎉"];
 
@@ -88,6 +88,9 @@ function Message({ msg, isGrouped, myId, onReact, onDelete }) {
                             </div>
                         )}
                     </button>
+                    <button className="msg-action-btn" title="Reply in thread" onClick={() => onReply(msg)}>
+                        💬
+                    </button>
                     {msg.sender?._id === myId && (
                         <button className="msg-action-btn" title="Delete message" onClick={() => onDelete(msg._id)}>
                             🗑️
@@ -99,7 +102,7 @@ function Message({ msg, isGrouped, myId, onReact, onDelete }) {
     );
 }
 
-export default function MessageList({ channelId }) {
+export default function MessageList({ channelId, onOpenThread }) {
     const { messages, typingUsers } = useMessageStore();
     const myId = useAuthStore((s) => s.user?._id);
     const bottomRef = useRef(null);
@@ -165,6 +168,7 @@ export default function MessageList({ channelId }) {
                 myId={myId}
                 onReact={handleReact}
                 onDelete={handleDelete}
+                onReply={() => onOpenThread?.(msg)}
             />
         );
 

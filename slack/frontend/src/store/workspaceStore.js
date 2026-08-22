@@ -7,6 +7,24 @@ const useWorkspaceStore = create((set, get) => ({
     channels: [],
     activeChannel: null,
     members: [],
+    unreadChannels: new Set(),
+
+    markChannelUnread: (channelId) => set(s => {
+        const next = new Set(s.unreadChannels);
+        next.add(channelId);
+        return { unreadChannels: next };
+    }),
+
+    markChannelRead: async (channelId) => {
+        set(s => {
+            const next = new Set(s.unreadChannels);
+            next.delete(channelId);
+            return { unreadChannels: next };
+        });
+        try {
+            await api.post(`/messages/${channelId}/read`);
+        } catch {}
+    },
 
     fetchWorkspaces: async () => {
         const { data } = await api.get("/workspaces");
@@ -34,6 +52,9 @@ const useWorkspaceStore = create((set, get) => ({
 
     setActiveChannel: (channel) => {
         set({ activeChannel: channel });
+        if (channel) {
+            get().markChannelRead(channel._id);
+        }
     },
 
     createWorkspace: async (payload) => {

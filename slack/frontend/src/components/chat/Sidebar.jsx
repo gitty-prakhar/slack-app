@@ -4,7 +4,7 @@ import useAuthStore from "../../store/authStore";
 import { useNavigate } from "react-router-dom";
 
 export default function Sidebar({ onChannelSelect }) {
-    const { activeWorkspace, channels, activeChannel, setActiveChannel, createChannel } = useWorkspaceStore();
+    const { activeWorkspace, channels, activeChannel, setActiveChannel, createChannel, unreadChannels } = useWorkspaceStore();
     const { user, logout } = useAuthStore();
     const navigate = useNavigate();
     const [showCreateChannel, setShowCreateChannel] = useState(false);
@@ -137,19 +137,29 @@ export default function Sidebar({ onChannelSelect }) {
                     </form>
                 )}
 
-                {channels.map((ch) => (
-                    <div
-                        key={ch._id}
-                        className={`sidebar-item ${activeChannel?._id === ch._id ? "active" : ""}`}
-                        onClick={() => handleChannelClick(ch)}
-                    >
-                        <span className="channel-hash">#</span>
-                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                            {ch.name}
-                        </span>
-                        {ch.isPrivate && <span style={{ marginLeft: "auto", fontSize: 12, opacity: 0.5 }}>🔒</span>}
-                    </div>
-                ))}
+                {channels.map((ch) => {
+                    const isUnread = unreadChannels.has(ch._id);
+                    return (
+                        <div
+                            key={ch._id}
+                            className={`sidebar-item ${activeChannel?._id === ch._id ? "active" : ""}`}
+                            onClick={() => handleChannelClick(ch)}
+                        >
+                            <span className="channel-hash">#</span>
+                            <span style={{ 
+                                overflow: "hidden", 
+                                textOverflow: "ellipsis", 
+                                whiteSpace: "nowrap",
+                                fontWeight: isUnread ? 800 : "normal",
+                                color: isUnread ? "#fff" : "inherit"
+                            }}>
+                                {ch.name}
+                            </span>
+                            {isUnread && <span style={{ marginLeft: "auto", fontSize: 10 }}>🔴</span>}
+                            {ch.isPrivate && !isUnread && <span style={{ marginLeft: "auto", fontSize: 12, opacity: 0.5 }}>🔒</span>}
+                        </div>
+                    );
+                })}
 
                 {channels.length === 0 && !showCreateChannel && (
                     <div style={{ padding: "4px 24px", fontSize: 13, color: "var(--sidebar-text)", opacity: 0.6 }}>

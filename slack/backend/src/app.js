@@ -44,7 +44,7 @@ app.use(express.urlencoded({extended:true,limit:"16kb"}));  //this middleware pa
 
 app.use(cookieParser()); //this middleware parses incoming cookies from the browser stores them in req.cookies
 
-// Health Check endpoint — returns DB status, uptime, and memory
+//health check endpoint , it returns db status,uptime and memory
 import mongoose from "mongoose";
 app.get("/api/v1/health",(req,res)=>{
     const memUsage=process.memoryUsage();
@@ -61,35 +61,36 @@ app.get("/api/v1/health",(req,res)=>{
     });
 });
 
-// Swagger API Documentation
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-    customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: "Slackr API Docs"
+//wwagger api docx
+app.use("/api-docs",swaggerUi.serve,swaggerUi.setup(swaggerSpec,{
+    customCss:'.swagger-ui .topbar { display: none }',
+    customSiteTitle:"Slackr API Docs"
 }));
 
-// Prometheus Metrics Endpoint
-app.get("/metrics", async (req, res) => {
-    try {
-        res.set("Content-Type", register.contentType);
+//prometheus metrics endpoint
+app.get("/metrics",async(req,res)=>{
+    try{
+        res.set("Content-Type",register.contentType);
         res.end(await register.metrics());
-    } catch (ex) {
+    } 
+    catch(ex){
         res.status(500).end(ex);
     }
 });
 
-// routes import
+//routes import
 import userRouter from "./routes/user.routes.js";
 import workspaceRouter from "./routes/workspace.routes.js";
 import channelRouter from "./routes/channel.routes.js";
 import messageRouter from "./routes/message.routes.js";
 
-// routes declaration
-app.use("/api/v1/users", userRouter);
-app.use("/api/v1/workspaces", workspaceRouter);
-app.use("/api/v1/channels", channelRouter);
-app.use("/api/v1/messages", messageRouter);
+//routes declaration
+app.use("/api/v1/users",userRouter);
+app.use("/api/v1/workspaces",workspaceRouter);
+app.use("/api/v1/channels",channelRouter);
+app.use("/api/v1/messages",messageRouter);
 
-// Error handling middleware
+//error handling middleware
 import { errorHandler } from "./middlewares/error.middleware.js";
 app.use(errorHandler);
 

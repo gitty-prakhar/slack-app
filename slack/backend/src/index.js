@@ -8,7 +8,7 @@ import mongoose from "mongoose";
 import { initSocket } from "./socket.js";
 import logger from "./utils/logger.js";
 
-const server = http.createServer(app);
+const server=http.createServer(app);
 initSocket(server);
 
 connectDB()

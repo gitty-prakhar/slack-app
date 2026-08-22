@@ -1,11 +1,5 @@
 import { Router } from "express";
-import { 
-    createWorkspace, 
-    getUserWorkspaces, 
-    getWorkspace, 
-    joinWorkspace, 
-    getWorkspaceMembers 
-} from "../controllers/workspace.controller.js";
+import { createWorkspace, getUserWorkspaces, getWorkspace, joinWorkspace, getWorkspaceMembers } from "../controllers/workspace.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { validate, createWorkspaceSchema } from "../middlewares/validate.middleware.js";
 

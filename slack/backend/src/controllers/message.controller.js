@@ -160,6 +160,10 @@ const replyMessage = asyncHandler(async (req, res) => {
 
     await reply.populate("sender", "username displayName avatar");
 
+    // Emit socket event for real-time thread updates
+    const io = getIO();
+    io.to(parentMessage.channel.toString()).emit("new_reply", reply);
+
     return res.status(201).json(
         new APIResponse(201, reply, "Reply sent successfully")
     );
@@ -202,6 +206,19 @@ const markAsRead = asyncHandler(async (req, res) => {
     );
 });
 
+// Get replies for a message
+const getReplies = asyncHandler(async (req, res) => {
+    const { messageId } = req.params;
+
+    const replies = await Message.find({ parentMessage: messageId, isDeleted: false })
+        .populate("sender", "username displayName avatar")
+        .sort({ createdAt: 1 }); // oldest first for threads
+
+    return res.status(200).json(
+        new APIResponse(200, replies, "Replies fetched successfully")
+    );
+});
+
 export {
     getMessages,
     sendMessage,
@@ -209,5 +226,6 @@ export {
     toggleReaction,
     replyMessage,
     searchMessages,
-    markAsRead
+    markAsRead,
+    getReplies
 };

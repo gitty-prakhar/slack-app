@@ -17,6 +17,16 @@ const useMessageStore = create((set, get) => ({
         }
     },
 
+    searchMessages: async (query) => {
+        try {
+            const { data } = await api.get(`/messages/search?q=${encodeURIComponent(query)}`);
+            return data.data;
+        } catch (error) {
+            console.error("Search failed:", error);
+            return [];
+        }
+    },
+
     sendMessage: async (channelId, content) => {
         // Optimistic update
         const tempId = `temp-${Date.now()}`;
@@ -34,6 +44,15 @@ const useMessageStore = create((set, get) => ({
         } catch {
             // remove temp on failure
             set((s) => ({ messages: s.messages.filter((m) => m._id !== tempId) }));
+        }
+    },
+
+    replyMessage: async (messageId, content) => {
+        try {
+            await api.post(`/messages/${messageId}/reply`, { content });
+        } catch (error) {
+            console.error("Reply failed:", error);
+            throw error;
         }
     },
 
