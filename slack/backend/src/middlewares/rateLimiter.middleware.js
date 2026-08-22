@@ -1,7 +1,6 @@
 import rateLimit from "express-rate-limit"; //use for rate limiting the requests
 import { RedisStore } from "rate-limit-redis";  //use for storing the rate limit data in redis
 import Redis from "ioredis"; //use for connecting to redis
-import { ApiError } from "../utils/apiError.js";
 
 //create a dedicated Redis connection for the rate limiter
 const redisClient=process.env.REDIS_URL?new Redis(process.env.REDIS_URL):new Redis({
@@ -17,8 +16,14 @@ export const globalLimiter=rateLimit({
     store:new RedisStore({
         sendCommand:(...args)=>redisClient.call(...args),
     }),
-    handler:(req,res,next)=>{ //when rate limit exceeds then run this
-        next(new ApiError(429,"Too many requests from this IP. Please try again after 15 minutes."));
+    //in express-rate-limit v7+ handler only receives (req,res,options) — no next
+    handler:(req,res)=>{
+        res.status(429).json({
+            success:false,
+            statusCode:429,
+            message:"Too many requests from this IP. Please try again after 15 minutes.",
+            errors:[],
+        });
     }
 });
 
@@ -30,7 +35,13 @@ export const authLimiter=rateLimit({
     store:new RedisStore({
         sendCommand:(...args)=>redisClient.call(...args),
     }),
-    handler:(req,res,next)=>{ //when rate limit exceeds then run this
-        next(new ApiError(429,"Too many authentication attempts. Please try again later."));
+    //in express-rate-limit v7+ handler only receives (req,res,options) — no next
+    handler:(req,res)=>{
+        res.status(429).json({
+            success:false,
+            statusCode:429,
+            message:"Too many authentication attempts. Please try again later.",
+            errors:[],
+        });
     }
 });

@@ -21,7 +21,7 @@ const useWorkspaceStore = create((set, get) => ({
     },
 
     fetchChannels: async (workspaceId) => {
-        const { data } = await api.get(`/channels/${workspaceId}`);
+        const { data } = await api.get(`/channels/workspace/${workspaceId}`);
         set({ channels: data.data });
         return data.data;
     },
@@ -43,7 +43,7 @@ const useWorkspaceStore = create((set, get) => ({
     },
 
     createChannel: async (workspaceId, payload) => {
-        const { data } = await api.post(`/channels/${workspaceId}`, payload);
+        const { data } = await api.post(`/channels/workspace/${workspaceId}`, payload);
         set((s) => ({ channels: [...s.channels, data.data] }));
         return data.data;
     },
