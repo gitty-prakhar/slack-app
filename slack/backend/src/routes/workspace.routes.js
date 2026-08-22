@@ -5,15 +5,9 @@ import { validate, createWorkspaceSchema } from "../middlewares/validate.middlew
 
 const router=Router();
 
-//aLl workspace routes require authentication
-router.use(verifyJWT);
-
-router.route("/").post(validate(createWorkspaceSchema),createWorkspace).get(getUserWorkspaces);
-
-router.route("/:workspaceId").get(getWorkspace);
-
-router.route("/:workspaceId/join").post(joinWorkspace);
-
-router.route("/:workspaceId/members").get(getWorkspaceMembers);
+router.route("/").post(verifyJWT,validate(createWorkspaceSchema),createWorkspace).get(verifyJWT,getUserWorkspaces);
+router.route("/:workspaceId").get(verifyJWT,getWorkspace);
+router.route("/:workspaceId/join").post(verifyJWT,joinWorkspace);
+router.route("/:workspaceId/members").get(verifyJWT,getWorkspaceMembers);
 
 export default router;
