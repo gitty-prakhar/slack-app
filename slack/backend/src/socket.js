@@ -7,7 +7,7 @@ let io;
 
 //passing my http server to socket io
 //Create a Socket.IO server on my existing Node HTTP server and 
-//allow my frontend to establish cross-origin Socket.IO connections, including credentials/cookies.
+//allow my frontend to establish cross-origin Socket.IO connections including credentials and cookies
 export const initSocket=(server)=>{
     io=new Server(server,{
         cors:{

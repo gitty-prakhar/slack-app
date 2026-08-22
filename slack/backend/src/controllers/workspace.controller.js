@@ -104,22 +104,25 @@ const deleteWorkspace=asyncHandler(async(req,res)=>{
         throw new ApiError(403,"Only the workspace owner can delete this workspace");
     }
 
-    //1. get all channels in this workspace
+    //get all channels in this workspace
     const channels=await Channel.find({workspace:workspaceId});
+
+    //use .map to store only channel ids and stire in the array
     const channelIds=channels.map(c=>c._id);
 
-    //2. delete all messages in those channels
+    //delete all messages in those channels
+    // $in = "value should be one of these given values
     if(channelIds.length>0){
         await Message.deleteMany({channel:{$in:channelIds}});
     }
 
-    //3. delete all channels
+    //delete all channels
     await Channel.deleteMany({workspace:workspaceId});
 
-    //4. delete all members
+    //delete all members
     await Member.deleteMany({workspace:workspaceId});
 
-    //5. delete workspace
+    //delete workspace
     await Workspace.findByIdAndDelete(workspaceId);
 
     return res.status(200).json(new APIResponse(200,{},"Workspace and all associated data deleted successfully"));

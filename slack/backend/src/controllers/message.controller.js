@@ -17,6 +17,7 @@ const getMessages=asyncHandler(async(req,res)=>{
 
     //verification of access can be added here if it's a private channel
 
+    //also yaha pe only fetch parent message uske baad threads to view krskte hai
     const messages=await Message.find({channel:channelId,parentMessage:null})
         .populate("sender","username displayName avatar")
         .sort({createdAt:-1})
@@ -28,61 +29,62 @@ const getMessages=asyncHandler(async(req,res)=>{
 });
 
 //send message
-const sendMessage = asyncHandler(async (req, res) => {
-    const { channelId } = req.params;
-    const { content } = req.body;
+const sendMessage=asyncHandler(async(req,res)=>{
+    const{channelId}=req.params;
+    const{content}=req.body;
 
-    if (!content || content.trim() === "") {
-        throw new ApiError(400, "Message content is required");
+    if(!content||content.trim()===""){
+        throw new ApiError(400,"Message content is required");
     }
 
-    const channel = await Channel.findById(channelId);
-    if (!channel) {
-        throw new ApiError(404, "Channel not found");
+    const channel=await Channel.findById(channelId);
+    if(!channel){
+        throw new ApiError(404,"Channel not found");
     }
 
-    const message = await Message.create({
-        channel: channelId,
-        sender: req.user._id,
+    const message=await Message.create({
+        channel:channelId,
+        sender:req.user._id,
         content
     });
 
-    // Populate sender info for the real-time event
-    await message.populate("sender", "username displayName avatar");
+    //populate sender info for the real time event
+    await message.populate("sender","username displayName avatar");
 
-    // Emit socket event to the channel room
-    const io = getIO();
-    io.to(channelId).emit("new_message", message);
+    //emit socket event to the channel room
+    //get SOCKET.IO all fucntions 
+    const io=getIO();
 
-    return res.status(201).json(
-        new APIResponse(201, message, "Message sent successfully")
-    );
+    //target kro saare channelID same walo ko 
+    //jo users us channel room mein joined hain unko event milega
+    //send event names new_message along with the message data
+    io.to(channelId).emit("new_message",message);
+
+    return res.status(201).json(new APIResponse(201,message,"Message sent successfully"));
 });
 
-// Delete message (soft delete)
-const deleteMessage = asyncHandler(async (req, res) => {
-    const { messageId } = req.params;
+//delete message (soft delete)
+const deleteMessage = asyncHandler(async(req,res)=>{
+    const{messageId}=req.params;
 
-    const message = await Message.findById(messageId);
-    if (!message) {
-        throw new ApiError(404, "Message not found");
+    const message=await Message.findById(messageId);
+    if(!message){
+        throw new ApiError(404,"Message not found");
     }
 
-    if (message.sender.toString() !== req.user._id.toString()) {
-        throw new ApiError(403, "You can only delete your own messages");
+    if(message.sender.toString()!==req.user._id.toString()){
+        throw new ApiError(403,"You can only delete your own messages");
     }
 
-    message.isDeleted = true;
-    message.content = "This message was deleted";
+    message.isDeleted=true;
+    message.content="This message was deleted";
     await message.save();
 
-    // Emit real-time event for deletion
-    const io = getIO();
-    io.to(message.channel.toString()).emit("message_deleted", { id: message._id });
+    //emit real time event for deletion
+    const io=getIO();
+    io.to(message.channel.toString()).emit("message_deleted",{id:message._id});
 
-    return res.status(200).json(
-        new APIResponse(200, message, "Message deleted successfully")
-    );
+    return res.status(200).json(new APIResponse(200,message,"Message deleted successfully"));
 });
 
 // Toggle Reaction
@@ -198,14 +200,14 @@ const searchMessages = asyncHandler(async (req, res) => {
     );
 });
 
-// Mark channel as read
-const markAsRead = asyncHandler(async (req, res) => {
-    const { channelId } = req.params;
+//mark channel as read
+const markAsRead=asyncHandler(async(req,res)=>{
+    const{channelId}=req.params;
 
-    // Update all messages in the channel to add user to readBy array if not already present
+    //update all messages in the channel to add user to readBy array if not already present
     await Message.updateMany(
-        { channel: channelId, readBy: { $ne: req.user._id } },
-        { $push: { readBy: req.user._id } }
+        {channel:channelId,readBy:{$ne:req.user._id}},
+        {$push:{readBy:req.user._id}}
     );
 
     return res.status(200).json(
@@ -213,26 +215,15 @@ const markAsRead = asyncHandler(async (req, res) => {
     );
 });
 
-// Get replies for a message
-const getReplies = asyncHandler(async (req, res) => {
-    const { messageId } = req.params;
+//get replies for a message
+const getReplies=asyncHandler(async(req,res)=>{
+    const{messageId}=req.params;
 
-    const replies = await Message.find({ parentMessage: messageId, isDeleted: false })
-        .populate("sender", "username displayName avatar")
-        .sort({ createdAt: 1 }); // oldest first for threads
+    const replies=await Message.find({parentMessage:messageId,isDeleted:false})
+        .populate("sender","username displayName avatar")
+        .sort({createdAt:1});
 
-    return res.status(200).json(
-        new APIResponse(200, replies, "Replies fetched successfully")
-    );
+    return res.status(200).json(new APIResponse(200,replies,"Replies fetched successfully"));
 });
 
-export {
-    getMessages,
-    sendMessage,
-    deleteMessage,
-    toggleReaction,
-    replyMessage,
-    searchMessages,
-    markAsRead,
-    getReplies
-};
+export{getMessages,sendMessage,deleteMessage,toggleReaction,replyMessage,searchMessages,markAsRead,getReplies};

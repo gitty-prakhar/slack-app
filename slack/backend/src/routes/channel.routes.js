@@ -4,10 +4,10 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router=Router();
 
-//workspace-scoped routes (create + list channels for a workspace)
+//workspace scoped routes
 router.route("/workspace/:workspaceId").post(verifyJWT,createChannel).get(verifyJWT,getWorkspaceChannels);
 
-//individual channel routes (get details + delete)
+//individual channel routes
 router.route("/:channelId").get(verifyJWT,getChannel).delete(verifyJWT,deleteChannel);
 
 export default router;

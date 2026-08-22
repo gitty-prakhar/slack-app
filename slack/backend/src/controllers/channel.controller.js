@@ -62,7 +62,8 @@ const getChannel=asyncHandler(async(req,res)=>{
         throw new ApiError(404,"Channel not found");
     }
 
-    //verify access
+    //if the channel is private and the current user is not the member
+    //check whether at least one member of this channel is the currently logged in user
     if(channel.isPrivate && !channel.members.some(id=>id.equals(req.user._id))){
         throw new ApiError(403,"You do not have access to this private channel");
     }
@@ -79,13 +80,13 @@ const deleteChannel=asyncHandler(async(req,res)=>{
         throw new ApiError(404,"Channel not found");
     }
 
-    // Verify admin rights
+    //verify admin rights
     const member=await Member.findOne({workspace:channel.workspace,user:req.user._id});
     if(!member||member.role!=="admin"){
         throw new ApiError(403,"Only workspace admins can delete channels");
     }
 
-    // Cannot delete 'general' or 'random' default channels
+    //cannot delete 'general' or 'random' default channels
     if(["general","random"].includes(channel.name)){
         throw new ApiError(400,"Cannot delete default channels");
     }
