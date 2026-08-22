@@ -78,9 +78,6 @@ const deleteMessage = asyncHandler(async (req, res) => {
     message.content = "This message was deleted";
     await message.save();
 
-    const io = getIO();
-    io.to(message.channel.toString()).emit("message_deleted", { id: messageId });
-
     return res.status(200).json(
         new APIResponse(200, message, "Message deleted successfully")
     );
@@ -126,9 +123,6 @@ const toggleReaction = asyncHandler(async (req, res) => {
 
     await message.save();
 
-    const io = getIO();
-    io.to(message.channel.toString()).emit("reaction_updated", message);
-
     return res.status(200).json(
         new APIResponse(200, message, "Reaction toggled successfully")
     );
@@ -157,9 +151,6 @@ const replyMessage = asyncHandler(async (req, res) => {
 
     await reply.populate("sender", "username displayName avatar");
 
-    const io = getIO();
-    io.to(parentMessage.channel.toString()).emit("new_message", reply);
-
     return res.status(201).json(
         new APIResponse(201, reply, "Reply sent successfully")
     );
@@ -178,9 +169,9 @@ const searchMessages = asyncHandler(async (req, res) => {
         content: { $regex: q, $options: "i" },
         isDeleted: false
     })
-    .populate("sender", "username displayName avatar")
-    .populate("channel", "name")
-    .limit(20);
+        .populate("sender", "username displayName avatar")
+        .populate("channel", "name")
+        .limit(20);
 
     return res.status(200).json(
         new APIResponse(200, messages, "Search results fetched successfully")

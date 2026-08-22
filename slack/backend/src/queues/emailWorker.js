@@ -1,6 +1,7 @@
 import { Worker } from "bullmq";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import logger from "../utils/logger.js";
 
 dotenv.config();
 
@@ -31,16 +32,18 @@ const worker = new Worker(
                 subject: subject,
                 text: message,
             });
-            console.log(`Email sent successfully to ${email}`);
+            logger.info(`Email sent successfully to ${email}`);
         }
     },
     { connection }
 );
 
 worker.on("completed", (job) => {
-    console.log(`Job ${job.id} completed successfully`);
+    logger.info(`Job ${job.id} completed successfully`);
 });
 
 worker.on("failed", (job, err) => {
-    console.log(`Job ${job.id} failed with error: ${err.message}`);
+    logger.error(`Job ${job.id} failed with error: ${err.message}`);
 });
+
+export default worker;

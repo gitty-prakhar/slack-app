@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
 import { User } from "./models/user.model.js";
 import jwt from "jsonwebtoken";
+import logger from "./utils/logger.js";
 
 let io;
 
@@ -34,7 +35,7 @@ export const initSocket = (server) => {
     });
 
     io.on("connection", async (socket) => {
-        console.log(`Socket Connected: ${socket.user.username}`);
+        logger.info(`Socket Connected: ${socket.user.username}`);
         
         // Update user status
         await User.findByIdAndUpdate(socket.user._id, { isOnline: true });
@@ -56,7 +57,7 @@ export const initSocket = (server) => {
         });
 
         socket.on("disconnect", async () => {
-            console.log(`Socket Disconnected: ${socket.user.username}`);
+            logger.info(`Socket Disconnected: ${socket.user.username}`);
             await User.findByIdAndUpdate(socket.user._id, { 
                 isOnline: false,
                 lastSeen: new Date()
