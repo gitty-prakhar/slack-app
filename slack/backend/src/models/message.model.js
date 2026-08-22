@@ -21,7 +21,7 @@ const messageSchema=new mongoose.Schema(
             default:false,
         },
         parentMessage:{
-            type: mongoose.Schema.Types.ObjectId,
+            type:mongoose.Schema.Types.ObjectId,
             ref:"Message",
             default:null,
         },
@@ -43,7 +43,7 @@ const messageSchema=new mongoose.Schema(
             },
         ],
     },
-    { timestamps: true }
+    {timestamps:true}
 );
 
 //text index on content for fast full-text search (used by searchMessages controller)
