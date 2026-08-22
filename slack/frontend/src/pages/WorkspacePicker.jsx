@@ -77,8 +77,18 @@ export default function WorkspacePicker() {
                                 <div className="workspace-item-info" style={{ flex: 1 }}>
                                     <strong>{ws.name}</strong>
                                     <span>{ws.description || "No description"}</span>
-                                    <span style={{ fontSize: 10, color: "var(--text-secondary)", marginTop: 4, display: "block" }}>ID: {ws._id}</span>
                                 </div>
+                                <button 
+                                    className="btn" 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        navigator.clipboard.writeText(ws._id);
+                                        alert("Workspace ID copied to clipboard!");
+                                    }} 
+                                    style={{ background: "rgba(255,255,255,0.1)", color: "#fff", padding: "4px 8px", fontSize: 12, marginRight: 8 }}
+                                >
+                                    Copy ID
+                                </button>
                                 {ws.owner === user?._id && (
                                     <button 
                                         className="btn" 
