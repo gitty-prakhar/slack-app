@@ -76,8 +76,8 @@ const registerUser=asyncHandler(async(req,res)=>{
     try{
         await emailQueue.add("sendOTP",{
             email:user.email,
-            subject:"IRCTC—Verify Your Email",
-            message:`Welcome to IRCTC!\n\nYour registration OTP is: ${otp}\n\nThis OTP is valid for 15 minutes. Do not share it with anyone.`,
+            subject:"Slackr — Verify Your Email",
+            message:`Welcome to Slackr!\n\nYour registration OTP is: ${otp}\n\nThis OTP is valid for 15 minutes. Do not share it with anyone.`,
         });
     } 
     catch(err){
@@ -253,7 +253,7 @@ const forgotPassword=asyncHandler(async(req,res)=>{
     try {
         await emailQueue.add("sendPasswordReset",{
             email:user.email,
-            subject:"IRCTC — Password Reset OTP",
+            subject:"Slackr — Password Reset OTP",
             message:`Your password reset OTP is: ${otp}\n\nThis OTP is valid for 15 minutes. Do not share it with anyone.`,
         });
         return res.status(200).json(new APIResponse(200,{},"OTP sent to your email"));
@@ -287,52 +287,41 @@ const resetPassword=asyncHandler(async(req,res)=>{
 
 //update profile
 const updateProfile=asyncHandler(async(req,res)=>{
-    const { displayName, bio, instagramId } = req.body;
+    const{displayName,bio,instagramId}=req.body;
     
-    const user = await User.findById(req.user._id);
-    if (!user) {
-        throw new ApiError(404, "User not found");
+    const user=await User.findById(req.user._id);
+    if(!user){
+        throw new ApiError(404,"User not found");
     }
 
-    if (displayName !== undefined) user.displayName = displayName;
-    if (bio !== undefined) user.bio = bio;
-    if (instagramId !== undefined) user.instagramId = instagramId;
+    if(displayName!==undefined)user.displayName=displayName;
+    if(bio!==undefined)user.bio=bio;
+    if(instagramId!==undefined)user.instagramId=instagramId;
 
-    await user.save({ validateBeforeSave: false });
+    await user.save({validateBeforeSave:false});
 
-    // return the updated user without sensitive info
-    const updatedUser = await User.findById(req.user._id).select("-password -refreshToken");
+    const updatedUser=await User.findById(req.user._id).select("-password -refreshToken");
 
-    return res.status(200).json(
-        new APIResponse(200, updatedUser, "Profile updated successfully")
-    );
+    return res.status(200).json(new APIResponse(200,updatedUser,"Profile updated successfully"));
 });
 
 //update avatar
-const updateUserAvatar = asyncHandler(async (req, res) => {
-    const avatarLocalPath = req.file?.path;
+const updateUserAvatar=asyncHandler(async(req,res)=>{
+    const avatarLocalPath=req.file?.path;
 
-    if (!avatarLocalPath) {
-        throw new ApiError(400, "Avatar file is missing");
+    if(!avatarLocalPath){
+        throw new ApiError(400,"Avatar file is missing");
     }
 
-    const avatar = await uploadOnCloudinary(avatarLocalPath);
+    const avatar=await uploadOnCloudinary(avatarLocalPath);
 
-    if (!avatar?.url) {
-        throw new ApiError(500, "Error while uploading avatar to Cloudinary");
+    if(!avatar?.url){
+        throw new ApiError(500,"Error while uploading avatar to Cloudinary");
     }
 
-    const user = await User.findByIdAndUpdate(
-        req.user._id,
-        {
-            $set: { avatar: avatar.url }
-        },
-        { new: true }
-    ).select("-password -refreshToken");
+    const user=await User.findByIdAndUpdate(req.user._id,{$set:{avatar: avatar.url}},{new:true}).select("-password -refreshToken");
 
-    return res.status(200).json(
-        new APIResponse(200, user, "Avatar image updated successfully")
-    );
+    return res.status(200).json(new APIResponse(200,user,"Avatar image updated successfully"));
 });
 
 export{registerUser,verifyRegistration,loginUser,logoutUser,refreshAccessToken,getCurrentUser,changeCurrentPassword,forgotPassword,resetPassword,updateProfile,updateUserAvatar};
