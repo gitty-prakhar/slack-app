@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 
 export default function Login() {
-    const [form, setForm] = useState({ email: "", password: "" });
+    const [form, setForm] = useState({ identifier: "", password: "" });
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const login = useAuthStore((s) => s.login);
@@ -14,7 +14,12 @@ export default function Login() {
         setError("");
         setLoading(true);
         try {
-            await login(form);
+            const isEmail = form.identifier.includes("@");
+            const payload = {
+                password: form.password,
+                ...(isEmail ? { email: form.identifier } : { username: form.identifier })
+            };
+            await login(payload);
             navigate("/");
         } catch (err) {
             setError(err.response?.data?.message || "Invalid credentials");
@@ -35,12 +40,12 @@ export default function Login() {
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label>Email</label>
+                        <label>Email or Username</label>
                         <input
-                            type="email"
-                            placeholder="you@company.com"
-                            value={form.email}
-                            onChange={(e) => setForm({ ...form, email: e.target.value })}
+                            type="text"
+                            placeholder="you@company.com or username"
+                            value={form.identifier}
+                            onChange={(e) => setForm({ ...form, identifier: e.target.value })}
                             required
                         />
                     </div>
