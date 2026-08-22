@@ -40,6 +40,12 @@ const useAuthStore = create((set, get) => ({
             set({ user: null });
         }
     },
+
+    updateProfile: async (payload) => {
+        const { data } = await api.patch("/users/profile", payload);
+        set({ user: data.data });
+        return data.data;
+    },
 }));
 
 export default useAuthStore;

@@ -8,7 +8,8 @@ import {
     getCurrentUser, 
     changeCurrentPassword, 
     forgotPassword, 
-    resetPassword 
+    resetPassword,
+    updateProfile
 } from "../controllers/user.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { authLimiter } from "../middlewares/rateLimiter.middleware.js";
@@ -27,5 +28,6 @@ router.route("/reset-password").post(authLimiter, resetPassword);
 router.route("/logout").post(verifyJWT, logoutUser);
 router.route("/me").get(verifyJWT, getCurrentUser);
 router.route("/change-password").patch(verifyJWT, changeCurrentPassword);
+router.route("/profile").patch(verifyJWT, updateProfile);
 
 export default router;

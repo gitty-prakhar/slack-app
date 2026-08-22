@@ -284,4 +284,27 @@ const resetPassword=asyncHandler(async(req,res)=>{
     return res.status(200).json(new APIResponse(200,{},"Password reset successfully"));
 });
 
-export{registerUser,verifyRegistration,loginUser,logoutUser,refreshAccessToken,getCurrentUser,changeCurrentPassword,forgotPassword,resetPassword};
+//update profile
+const updateProfile=asyncHandler(async(req,res)=>{
+    const { displayName, bio, instagramId } = req.body;
+    
+    const user = await User.findById(req.user._id);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    if (displayName !== undefined) user.displayName = displayName;
+    if (bio !== undefined) user.bio = bio;
+    if (instagramId !== undefined) user.instagramId = instagramId;
+
+    await user.save({ validateBeforeSave: false });
+
+    // return the updated user without sensitive info
+    const updatedUser = await User.findById(req.user._id).select("-password -refreshToken");
+
+    return res.status(200).json(
+        new APIResponse(200, updatedUser, "Profile updated successfully")
+    );
+});
+
+export{registerUser,verifyRegistration,loginUser,logoutUser,refreshAccessToken,getCurrentUser,changeCurrentPassword,forgotPassword,resetPassword,updateProfile};

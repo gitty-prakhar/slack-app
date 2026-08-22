@@ -12,6 +12,12 @@ export default function Sidebar({ onChannelSelect }) {
     const [channelDesc, setChannelDesc] = useState("");
     const [channelIsPrivate, setChannelIsPrivate] = useState(false);
     const [creating, setCreating] = useState(false);
+    
+    // Profile states
+    const [showProfile, setShowProfile] = useState(false);
+    const [editProfile, setEditProfile] = useState(false);
+    const [profileForm, setProfileForm] = useState({ displayName: "", bio: "", instagramId: "" });
+    const { updateProfile } = useAuthStore();
 
     const handleChannelClick = (ch) => {
         setActiveChannel(ch);
@@ -42,6 +48,26 @@ export default function Sidebar({ onChannelSelect }) {
     const handleLogout = async () => {
         await logout();
         navigate("/login");
+    };
+
+    const handleOpenProfile = () => {
+        setProfileForm({
+            displayName: user?.displayName || "",
+            bio: user?.bio || "",
+            instagramId: user?.instagramId || ""
+        });
+        setEditProfile(false);
+        setShowProfile(true);
+    };
+
+    const handleSaveProfile = async (e) => {
+        e.preventDefault();
+        try {
+            await updateProfile(profileForm);
+            setEditProfile(false);
+        } catch (err) {
+            alert(err.response?.data?.message || "Failed to update profile");
+        }
     };
 
     return (
@@ -133,14 +159,88 @@ export default function Sidebar({ onChannelSelect }) {
             </div>
 
             {/* User footer */}
-            <div className="sidebar-user" onClick={handleLogout} title="Click to sign out">
+            <div className="sidebar-user" onClick={handleOpenProfile} title="View Profile">
                 <div className="avatar sm online">{user?.username?.[0]?.toUpperCase()}</div>
                 <div className="sidebar-user-info">
                     <div className="name">{user?.username}</div>
                     <div className="status">Active</div>
                 </div>
-                <span style={{ fontSize: 13, color: "var(--sidebar-text)", marginLeft: "auto", opacity: 0.6 }}>⏏</span>
             </div>
+
+            {/* Profile Modal */}
+            {showProfile && (
+                <div className="modal-overlay" onClick={() => setShowProfile(false)}>
+                    <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 400 }}>
+                        <div className="modal-header">
+                            <h2>Profile</h2>
+                            <button className="close-btn" onClick={() => setShowProfile(false)}>×</button>
+                        </div>
+                        <div className="modal-body">
+                            <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
+                                <div className="avatar lg">{user?.username?.[0]?.toUpperCase()}</div>
+                                <div>
+                                    <h3 style={{ margin: 0, fontSize: 18 }}>{user?.displayName || user?.username}</h3>
+                                    <p style={{ margin: 0, color: "var(--text-secondary)", fontSize: 14 }}>@{user?.username}</p>
+                                </div>
+                            </div>
+
+                            {editProfile ? (
+                                <form onSubmit={handleSaveProfile}>
+                                    <div className="form-group" style={{ marginBottom: 12 }}>
+                                        <label style={{ display: "block", marginBottom: 4, fontSize: 12, color: "var(--text-secondary)" }}>Display Name</label>
+                                        <input
+                                            value={profileForm.displayName}
+                                            onChange={(e) => setProfileForm({ ...profileForm, displayName: e.target.value })}
+                                            style={{ width: "100%", background: "var(--input-bg)", border: "1px solid var(--border)", borderRadius: 4, padding: "8px" }}
+                                        />
+                                    </div>
+                                    <div className="form-group" style={{ marginBottom: 12 }}>
+                                        <label style={{ display: "block", marginBottom: 4, fontSize: 12, color: "var(--text-secondary)" }}>Bio</label>
+                                        <textarea
+                                            value={profileForm.bio}
+                                            onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
+                                            rows={3}
+                                            style={{ width: "100%", background: "var(--input-bg)", border: "1px solid var(--border)", borderRadius: 4, padding: "8px", resize: "none" }}
+                                        />
+                                    </div>
+                                    <div className="form-group" style={{ marginBottom: 12 }}>
+                                        <label style={{ display: "block", marginBottom: 4, fontSize: 12, color: "var(--text-secondary)" }}>Instagram ID</label>
+                                        <input
+                                            value={profileForm.instagramId}
+                                            onChange={(e) => setProfileForm({ ...profileForm, instagramId: e.target.value })}
+                                            placeholder="e.g. prakhar_410"
+                                            style={{ width: "100%", background: "var(--input-bg)", border: "1px solid var(--border)", borderRadius: 4, padding: "8px" }}
+                                        />
+                                    </div>
+                                    <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+                                        <button type="button" className="btn" style={{ flex: 1, background: "var(--input-bg)" }} onClick={() => setEditProfile(false)}>Cancel</button>
+                                        <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Save</button>
+                                    </div>
+                                </form>
+                            ) : (
+                                <div>
+                                    <div style={{ marginBottom: 16 }}>
+                                        <strong style={{ display: "block", fontSize: 12, color: "var(--text-secondary)" }}>Bio</strong>
+                                        <p style={{ margin: "4px 0", fontSize: 14 }}>{user?.bio || "No bio added yet."}</p>
+                                    </div>
+                                    {user?.instagramId && (
+                                        <div style={{ marginBottom: 16 }}>
+                                            <strong style={{ display: "block", fontSize: 12, color: "var(--text-secondary)" }}>Instagram</strong>
+                                            <a href={`https://instagram.com/${user.instagramId}`} target="_blank" rel="noopener noreferrer" style={{ color: "var(--text-link)", textDecoration: "none" }}>
+                                                @{user.instagramId}
+                                            </a>
+                                        </div>
+                                    )}
+                                    <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid var(--border)", display: "flex", justifyContent: "space-between" }}>
+                                        <button className="btn" onClick={() => setEditProfile(true)}>Edit Profile</button>
+                                        <button className="btn" style={{ color: "#dc3545", borderColor: "transparent", background: "transparent" }} onClick={handleLogout}>Sign Out</button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </aside>
     );
 }

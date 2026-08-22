@@ -37,6 +37,11 @@ const userSchema=new mongoose.Schema(
             trim:true,
             default:"",
         },
+        instagramId:{
+            type:String,
+            trim:true,
+            default:"",
+        },
         lastSeen:{
             type:Date,
             default:Date.now,
