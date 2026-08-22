@@ -38,12 +38,12 @@ const messageSchema = new mongoose.Schema(
         ],
         readBy:[
             {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "User",
+                type:mongoose.Schema.Types.ObjectId,
+                ref:"User",
             },
         ],
     },
     { timestamps: true }
 );
 
-export const Message = mongoose.model("Message", messageSchema);
+export const Message=mongoose.model("Message",messageSchema);
