@@ -7,7 +7,7 @@ import morgan from "morgan";
 import { globalLimiter } from "./middlewares/rateLimiter.middleware.js";
 import { requestId } from "./middlewares/requestId.middleware.js";
 import swaggerUi from "swagger-ui-express";
-import { swaggerSpec } from "./utils/swagger.js";
+import { swaggerDocument } from "./utils/swagger.js";
 import { metricsMiddleware, register } from "./utils/metrics.js";
 
 const app=express();
@@ -62,7 +62,7 @@ app.get("/api/v1/health",(req,res)=>{
 });
 
 //wwagger api docx
-app.use("/api-docs",swaggerUi.serve,swaggerUi.setup(swaggerSpec,{
+app.use("/api-docs",swaggerUi.serve,swaggerUi.setup(swaggerDocument,{
     customCss:'.swagger-ui .topbar { display: none }',
     customSiteTitle:"Slackr API Docs"
 }));
