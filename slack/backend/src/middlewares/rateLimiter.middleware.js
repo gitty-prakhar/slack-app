@@ -10,7 +10,7 @@ const redisClient=process.env.REDIS_URL?new Redis(process.env.REDIS_URL):new Red
 
 export const globalLimiter=rateLimit({
     windowMs:15*60*1000, //15 minute window
-    max:500, //limit each IP to 500 requests per `windowMs`
+    max:process.env.NODE_ENV==="development"?5000:500, //limit each IP (relaxed in dev)
     standardHeaders:true, //return rate limit info in the `RateLimit-*` headers
     legacyHeaders:false, //disable the `X-RateLimit-*` headers
     store:new RedisStore({
@@ -29,7 +29,7 @@ export const globalLimiter=rateLimit({
 
 export const authLimiter=rateLimit({
     windowMs:60*60*1000, //1 hour window
-    max:20, //limit each IP to 20 requests per `windowMs`
+    max:process.env.NODE_ENV==="development"?1000:20, //limit each IP (relaxed in dev)
     standardHeaders:true, //return rate limit info in the `RateLimit-*` headers
     legacyHeaders:false, //disable the `X-RateLimit-*` headers
     store:new RedisStore({
