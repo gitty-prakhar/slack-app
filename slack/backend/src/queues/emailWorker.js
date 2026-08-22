@@ -1,24 +1,16 @@
 import { Worker } from "bullmq";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import dotenv from "dotenv";
 import logger from "../utils/logger.js";
 
 dotenv.config();
 
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 const connection = { 
     host: process.env.REDIS_HOST || "localhost", 
     port: process.env.REDIS_PORT || 6379 
 };
-
-const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || "smtp.gmail.com",
-    port: process.env.SMTP_PORT || 587,
-    secure: false, // true for 465, false for other ports
-    auth: {
-        user: process.env.SMTP_USER, 
-        pass: process.env.SMTP_PASS, 
-    },
-});
 
 const worker = new Worker(
     "email",
@@ -26,13 +18,19 @@ const worker = new Worker(
         if (job.name === "sendOTP" || job.name === "sendPasswordReset") {
             const { email, subject, message } = job.data;
             
-            await transporter.sendMail({
-                from: `"Slack Clone" <${process.env.SMTP_USER}>`, 
+            const { data, error } = await resend.emails.send({
+                from: "Slack Clone <onboarding@resend.dev>", // default test domain
                 to: email,
                 subject: subject,
                 text: message,
             });
-            logger.info(`Email sent successfully to ${email}`);
+
+            if (error) {
+                logger.error(`Resend failed to send email: ${error.message}`);
+                throw new Error(error.message);
+            }
+
+            logger.info(`Email sent successfully via Resend to ${email}, id: ${data.id}`);
         }
     },
     { connection }
