@@ -54,7 +54,9 @@ const registerUser=asyncHandler(async(req,res)=>{
     });
 
     if(user){
-        //update existing unverified user's password + new OTP
+        //update existing unverified user's details + new OTP
+        user.email=email.toLowerCase();
+        user.username=username.toLowerCase();
         user.password=password;
         user.verificationOtp=otp;
         user.verificationOtpExpiry=otpExpiry;
