@@ -76,6 +76,10 @@ const deleteMessage = asyncHandler(async (req, res) => {
     message.content = "This message was deleted";
     await message.save();
 
+    // Emit real-time event for deletion
+    const io = getIO();
+    io.to(message.channel.toString()).emit("message_deleted", { id: message._id });
+
     return res.status(200).json(
         new APIResponse(200, message, "Message deleted successfully")
     );
@@ -120,6 +124,13 @@ const toggleReaction = asyncHandler(async (req, res) => {
     }
 
     await message.save();
+
+    // Populate sender info so frontend doesn't lose it on reaction update
+    await message.populate("sender", "username displayName avatar");
+
+    // Emit real-time event for reaction
+    const io = getIO();
+    io.to(message.channel.toString()).emit("reaction_updated", message);
 
     return res.status(200).json(
         new APIResponse(200, message, "Reaction toggled successfully")
