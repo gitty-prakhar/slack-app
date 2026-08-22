@@ -25,18 +25,18 @@ const messageSchema = new mongoose.Schema(
             ref: "Message",
             default: null,
         },
-        reactions: [
+        reactions:[
             {
-                emoji: String,
-                users: [
+                emoji:String,
+                users:[
                     {
-                        type: mongoose.Schema.Types.ObjectId,
-                        ref: "User",
+                        type:mongoose.Schema.Types.ObjectId,
+                        ref:"User",
                     },
                 ],
             },
         ],
-        readBy: [
+        readBy:[
             {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "User",

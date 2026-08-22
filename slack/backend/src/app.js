@@ -32,9 +32,11 @@ app.use(cookieParser()); //this middleware parses incoming cookies from the brow
 
 // routes import
 import userRouter from "./routes/user.routes.js";
+import workspaceRouter from "./routes/workspace.routes.js";
 
 // routes declaration
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/workspaces", workspaceRouter);
 
 // Error handling middleware
 import { errorHandler } from "./middlewares/error.middleware.js";
