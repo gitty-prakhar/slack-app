@@ -1,45 +1,45 @@
-export const swaggerDocument = {
-    openapi: "3.0.0",
-    info: {
-        title: "Slackr API",
-        version: "1.0.0",
-        description: "API documentation for the Slackr backend"
+export const swaggerDocument={
+    openapi:"3.0.0",
+    info:{
+        title:"Slackr API",
+        version:"1.0.0",
+        description:"API documentation for the Slackr backend"
     },
-    servers: [
+    servers:[
         {
-            url: "http://localhost:8000/api/v1"
+            url:"http://localhost:8000/api/v1"
         }
     ],
-    components: {
-        securitySchemes: {
-            bearerAuth: {
+    components:{
+        securitySchemes:{
+            bearerAuth:{
                 type: "http",
-                scheme: "bearer",
-                bearerFormat: "JWT"
+                scheme:"bearer",
+                bearerFormat:"JWT"
             }
         }
     },
-    security: [
+    security:[
         {
-            bearerAuth: []
+            bearerAuth:[]
         }
     ],
-    paths: {
-        "/users/register": {
-            post: {
-                summary: "Register a new user",
-                tags: ["Users"],
-                security: [],
-                requestBody: {
-                    required: true,
-                    content: {
-                        "application/json": {
-                            schema: {
-                                type: "object",
-                                properties: {
-                                    email: { type: "string" },
-                                    username: { type: "string" },
-                                    password: { type: "string" }
+    paths:{
+        "/users/register":{
+            post:{
+                summary:"Register a new user",
+                tags:["Users"],
+                security:[],
+                requestBody:{
+                    required:true,
+                    content:{
+                        "application/json":{
+                            schema:{
+                                type:"object",
+                                properties:{
+                                    email:{type:"string"},
+                                    username:{type:"string"},
+                                    password:{type:"string"}
                                 }
                             }
                         }
@@ -78,14 +78,14 @@ export const swaggerDocument = {
         "/users/me":{
             get:{
                 summary:"Get current logged-in user",
-                tags: ["Users"],
-                responses: {
-                    "200": { description: "Successfully fetched current user" },
-                    "401": { description: "Unauthorized" }
+                tags:["Users"],
+                responses:{
+                    "200":{ description:"Successfully fetched current user" },
+                    "401":{ description:"Unauthorized" }
                 }
             }
         },
-        "/workspaces": {
+        "/workspaces":{
             get: {
                 summary: "Get all workspaces for the current user",
                 tags: ["Workspaces"],
@@ -93,13 +93,13 @@ export const swaggerDocument = {
                     "200": { description: "Successfully fetched user workspaces" }
                 }
             },
-            post: {
-                summary: "Create a new workspace",
-                tags: ["Workspaces"],
-                requestBody: {
-                    required: true,
-                    content: {
-                        "application/json": {
+            post:{
+                summary:"Create a new workspace",
+                tags:["Workspaces"],
+                requestBody:{
+                    required:true,
+                    content:{
+                        "application/json":{
                             schema: {
                                 type: "object",
                                 properties: {
