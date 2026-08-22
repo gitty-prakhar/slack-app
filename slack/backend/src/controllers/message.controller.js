@@ -3,6 +3,7 @@ import { Channel } from "../models/channel.model.js";
 import { ApiError } from "../utils/apiError.js";
 import { APIResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { getIO } from "../socket.js";
 
 // Get messages in a channel
 const getMessages = asyncHandler(async (req, res) => {
@@ -51,8 +52,9 @@ const sendMessage = asyncHandler(async (req, res) => {
     // Populate sender info for the real-time event
     await message.populate("sender", "username displayName avatar");
 
-    // In a real app, you would emit a socket event here
-    // io.to(channelId).emit("new_message", message);
+    // Emit socket event to the channel room
+    const io = getIO();
+    io.to(channelId).emit("new_message", message);
 
     return res.status(201).json(
         new APIResponse(201, message, "Message sent successfully")
@@ -75,6 +77,9 @@ const deleteMessage = asyncHandler(async (req, res) => {
     message.isDeleted = true;
     message.content = "This message was deleted";
     await message.save();
+
+    const io = getIO();
+    io.to(message.channel.toString()).emit("message_deleted", { id: messageId });
 
     return res.status(200).json(
         new APIResponse(200, message, "Message deleted successfully")
@@ -121,6 +126,9 @@ const toggleReaction = asyncHandler(async (req, res) => {
 
     await message.save();
 
+    const io = getIO();
+    io.to(message.channel.toString()).emit("reaction_updated", message);
+
     return res.status(200).json(
         new APIResponse(200, message, "Reaction toggled successfully")
     );
@@ -148,6 +156,9 @@ const replyMessage = asyncHandler(async (req, res) => {
     });
 
     await reply.populate("sender", "username displayName avatar");
+
+    const io = getIO();
+    io.to(parentMessage.channel.toString()).emit("new_message", reply);
 
     return res.status(201).json(
         new APIResponse(201, reply, "Reply sent successfully")
