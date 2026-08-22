@@ -31,7 +31,6 @@ export default function Chat() {
         const socket = getSocket();
         if (!socket) return;
 
-        socket.on("new_message", addMessage);
         socket.on("message_deleted", ({ id }) => deleteMessageLocal(id));
         socket.on("reaction_updated", updateReaction);
         socket.on("user_typing", ({ userId, username }) => setTyping(userId, username));
