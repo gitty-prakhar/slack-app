@@ -9,6 +9,8 @@ export default function Sidebar({ onChannelSelect }) {
     const navigate = useNavigate();
     const [showCreateChannel, setShowCreateChannel] = useState(false);
     const [channelName, setChannelName] = useState("");
+    const [channelDesc, setChannelDesc] = useState("");
+    const [channelIsPrivate, setChannelIsPrivate] = useState(false);
     const [creating, setCreating] = useState(false);
 
     const handleChannelClick = (ch) => {
@@ -21,9 +23,16 @@ export default function Sidebar({ onChannelSelect }) {
         if (!channelName.trim()) return;
         setCreating(true);
         try {
-            const ch = await createChannel(activeWorkspace._id, { name: channelName.trim() });
+            const payload = {
+                name: channelName.trim(),
+                description: channelDesc.trim(),
+                isPrivate: channelIsPrivate
+            };
+            const ch = await createChannel(activeWorkspace._id, payload);
             handleChannelClick(ch);
             setChannelName("");
+            setChannelDesc("");
+            setChannelIsPrivate(false);
             setShowCreateChannel(false);
         } finally {
             setCreating(false);
@@ -60,10 +69,29 @@ export default function Sidebar({ onChannelSelect }) {
                             style={{
                                 width: "100%", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)",
                                 borderRadius: 4, padding: "6px 8px", color: "#fff", fontSize: 14,
-                                outline: "none"
+                                outline: "none", marginBottom: 8
                             }}
                             onKeyDown={(e) => e.key === "Escape" && setShowCreateChannel(false)}
                         />
+                        <input
+                            value={channelDesc}
+                            onChange={(e) => setChannelDesc(e.target.value)}
+                            placeholder="Description (optional)"
+                            style={{
+                                width: "100%", background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)",
+                                borderRadius: 4, padding: "6px 8px", color: "#fff", fontSize: 14,
+                                outline: "none", marginBottom: 8
+                            }}
+                            onKeyDown={(e) => e.key === "Escape" && setShowCreateChannel(false)}
+                        />
+                        <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "rgba(255,255,255,0.8)" }}>
+                            <input
+                                type="checkbox"
+                                checked={channelIsPrivate}
+                                onChange={(e) => setChannelIsPrivate(e.target.checked)}
+                            />
+                            Make private
+                        </label>
                         <div style={{ display: "flex", gap: 4, marginTop: 4 }}>
                             <button
                                 type="button"

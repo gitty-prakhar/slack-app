@@ -47,6 +47,14 @@ const useWorkspaceStore = create((set, get) => ({
         set((s) => ({ channels: [...s.channels, data.data] }));
         return data.data;
     },
+
+    deleteChannel: async (channelId) => {
+        await api.delete(`/channels/${channelId}`);
+        set((s) => ({
+            channels: s.channels.filter((c) => c._id !== channelId),
+            activeChannel: s.activeChannel?._id === channelId ? null : s.activeChannel
+        }));
+    },
 }));
 
 export default useWorkspaceStore;
