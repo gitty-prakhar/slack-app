@@ -15,7 +15,7 @@ app.use(helmet({crossOriginResourcePolicy:false}));
 
 app.use(morgan("dev"));
 
-// CORS — read allowed origins from .env (comma-separated list)
+//Ccors read allowed origins from .env
 const allowedOrigins=process.env.CORS_ORIGIN
     ?process.env.CORS_ORIGIN.split(",").map(o=>o.trim())
     :true;

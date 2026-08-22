@@ -22,7 +22,7 @@ connectDB()
     logger.error(`MongoDB connection failed: ${err.message}`);
 });
 
-//graceful shutdown handler - closes DB and server cleanly on SIGTERM/SIGINT
+//graceful shutdown handler, closes DB and server cleanly on SIGTERM/SIGINT
 //this prevents data corruption and ensures all requests finish before shutting down
 const gracefulShutdown=(signal)=>{
     logger.info(`${signal} received. Shutting down gracefully...`);
@@ -33,7 +33,7 @@ const gracefulShutdown=(signal)=>{
         process.exit(0);
     });
 
-    //force shutdown if graceful shutdown takes too long (10s)
+    //force shutdown if graceful shutdown takes too long or if shutdown get stuck
     setTimeout(()=>{
         logger.error("Forcefully shutting down");
         process.exit(1);

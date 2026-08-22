@@ -5,7 +5,7 @@ import { ApiError } from "../utils/apiError.js";
 import { APIResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-// Create workspace
+//create workspace
 const createWorkspace=asyncHandler(async(req,res)=>{
     const{name,description}=req.body;
 
@@ -15,21 +15,12 @@ const createWorkspace=asyncHandler(async(req,res)=>{
 
     const slug=name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Date.now();
 
-    const workspace=await Workspace.create({
-        name,
-        description,
-        slug,
-        owner:req.user._id
-    });
+    const workspace=await Workspace.create({name,description,slug,owner:req.user._id});
 
-    // Add owner as an admin member
-    await Member.create({
-        workspace:workspace._id,
-        user:req.user._id,
-        role:"admin"
-    });
+    //add owner as an admin member
+    await Member.create({workspace:workspace._id,user:req.user._id,role:"admin"});
 
-    // Create default channels
+    //create default channels
     await Channel.create([
         {workspace:workspace._id,name:"general",createdBy:req.user._id},
         {workspace:workspace._id,name:"random",createdBy:req.user._id}

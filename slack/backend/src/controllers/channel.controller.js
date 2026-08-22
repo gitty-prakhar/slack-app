@@ -4,7 +4,7 @@ import { ApiError } from "../utils/apiError.js";
 import { APIResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-// Create channel
+//create channel
 const createChannel=asyncHandler(async(req,res)=>{
     const{workspaceId}=req.params;
     const{name,description,isPrivate,members}=req.body;
@@ -19,7 +19,7 @@ const createChannel=asyncHandler(async(req,res)=>{
         throw new ApiError(403,"You must be a member of the workspace to create a channel");
     }
 
-    // Prepare channel data
+    //prepare channel data
     const channelData={
         workspace:workspaceId,
         name:name.toLowerCase(),
@@ -34,29 +34,26 @@ const createChannel=asyncHandler(async(req,res)=>{
     return res.status(201).json(new APIResponse(201,channel,"Channel created successfully"));
 });
 
-// List workspace channels
+//list workspace channels
 const getWorkspaceChannels=asyncHandler(async(req,res)=>{
     const{workspaceId}=req.params;
 
-    // Verify user is member
+    //verify user is member
     const isWorkspaceMember=await Member.findOne({workspace:workspaceId,user:req.user._id});
     if(!isWorkspaceMember){
         throw new ApiError(403,"Access denied");
     }
 
-    // Get public channels OR private channels where user is a member
+    //get public channels OR private channels where user is a member
     const channels=await Channel.find({
         workspace:workspaceId,
-        $or:[
-            {isPrivate:false},
-            {members:req.user._id}
-        ]
+        $or:[{isPrivate:false},{members:req.user._id}]
     });
 
     return res.status(200).json(new APIResponse(200,channels,"Channels fetched successfully"));
 });
 
-// Get channel details
+//get channel details
 const getChannel=asyncHandler(async(req,res)=>{
     const{channelId}=req.params;
 
@@ -65,15 +62,15 @@ const getChannel=asyncHandler(async(req,res)=>{
         throw new ApiError(404,"Channel not found");
     }
 
-    // Verify access
-    if(channel.isPrivate&&!channel.members.some(id=>id.equals(req.user._id))){
+    //verify access
+    if(channel.isPrivate && !channel.members.some(id=>id.equals(req.user._id))){
         throw new ApiError(403,"You do not have access to this private channel");
     }
 
     return res.status(200).json(new APIResponse(200,channel,"Channel details fetched successfully"));
 });
 
-// Delete channel
+//delete channel
 const deleteChannel=asyncHandler(async(req,res)=>{
     const{channelId}=req.params;
 

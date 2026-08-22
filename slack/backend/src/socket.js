@@ -5,66 +5,75 @@ import logger from "./utils/logger.js";
 
 let io;
 
-export const initSocket = (server) => {
-    io = new Server(server, {
-        cors: {
-            origin: true, // Allow frontend origin
-            credentials: true
+//passing my http server to socket io
+//Create a Socket.IO server on my existing Node HTTP server and 
+//allow my frontend to establish cross-origin Socket.IO connections, including credentials/cookies.
+export const initSocket=(server)=>{
+    io=new Server(server,{
+        cors:{
+            origin:true,//Allow frontend origin
+            credentials:true
         }
     });
 
-    // Authenticate socket connection
-    io.use(async (socket, next) => {
-        try {
-            // Extract token from auth headers or cookies (basic parse for hackathon)
-            const token = socket.handshake.auth.token || 
+
+    //Authenticate socket connection
+    io.use(async(socket,next)=>{
+        try{
+            //Extract token from auth headers or cookies (basic parse for hackathon)
+            const token=socket.handshake.auth.token|| 
                           (socket.handshake.headers.cookie && socket.handshake.headers.cookie.split('accessToken=')[1]?.split(';')[0]);
                           
-            if (!token) return next(new Error("Authentication error"));
+            if(!token) return next(new Error("Authentication error"));
 
-            const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-            const user = await User.findById(decoded._id).select("-password");
+            const decoded=jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
+            const user=await User.findById(decoded._id).select("-password");
             
-            if (!user) return next(new Error("User not found"));
+            if(!user)return next(new Error("User not found"));
             
-            socket.user = user;
+            socket.user=user;
             next();
-        } catch (error) {
+        } 
+        catch(error){
             next(new Error("Authentication error"));
         }
     });
 
-    io.on("connection", async (socket) => {
+    io.on("connection",async(socket)=>{
         logger.info(`Socket Connected: ${socket.user.username}`);
         
-        // Update user status
-        await User.findByIdAndUpdate(socket.user._id, { isOnline: true });
-        io.emit("user_online", { userId: socket.user._id });
+        //update user status
+        await User.findByIdAndUpdate(socket.user._id,{isOnline:true});
 
-        socket.on("join_channel", (channelId) => {
+        // tell this event to all connected clients 
+        //kind of broadcast
+        io.emit("user_online",{userId:socket.user._id});
+
+        socket.on("join_channel",(channelId)=>{
             socket.join(channelId);
         });
 
-        socket.on("leave_channel", (channelId) => {
+        socket.on("leave_channel",(channelId)=>{
             socket.leave(channelId);
         });
 
-        socket.on("typing", ({ channelId }) => {
-            socket.to(channelId).emit("user_typing", { 
-                userId: socket.user._id, 
-                username: socket.user.username 
+        socket.on("typing",({channelId})=>{
+            //Everyone inside the channel gets the event
+            socket.to(channelId).emit("user_typing",{ 
+                userId:socket.user._id, 
+                username:socket.user.username 
             });
         });
 
-        socket.on("disconnect", async () => {
+        socket.on("disconnect",async()=>{
             logger.info(`Socket Disconnected: ${socket.user.username}`);
-            await User.findByIdAndUpdate(socket.user._id, { 
-                isOnline: false,
-                lastSeen: new Date()
+            await User.findByIdAndUpdate(socket.user._id,{ 
+                isOnline:false,
+                lastSeen:new Date()
             });
-            io.emit("user_offline", { 
-                userId: socket.user._id,
-                lastSeen: new Date()
+            io.emit("user_offline",{ 
+                userId:socket.user._id,
+                lastSeen:new Date()
             });
         });
     });
@@ -72,8 +81,10 @@ export const initSocket = (server) => {
     return io;
 };
 
-export const getIO = () => {
-    if (!io) {
+// we have not just dierctly exported it because initially it was undefned 
+// so first check then export
+export const getIO=()=>{
+    if(!io){
         throw new Error("Socket.io not initialized!");
     }
     return io;

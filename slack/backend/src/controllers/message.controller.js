@@ -5,31 +5,29 @@ import { APIResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { getIO } from "../socket.js";
 
-// Get messages in a channel
-const getMessages = asyncHandler(async (req, res) => {
-    const { channelId } = req.params;
-    const { page = 1, limit = 50 } = req.query;
+//get messages in a channel
+const getMessages=asyncHandler(async(req,res)=>{
+    const{channelId}=req.params;
+    const{page=1,limit=50}=req.query;
 
-    const channel = await Channel.findById(channelId);
-    if (!channel) {
-        throw new ApiError(404, "Channel not found");
+    const channel=await Channel.findById(channelId);
+    if(!channel){
+        throw new ApiError(404,"Channel not found");
     }
 
-    // Verification of access can be added here if it's a private channel
+    //verification of access can be added here if it's a private channel
 
-    const messages = await Message.find({ channel: channelId, parentMessage: null })
-        .populate("sender", "username displayName avatar")
-        .sort({ createdAt: -1 })
-        .skip((page - 1) * limit)
+    const messages=await Message.find({channel:channelId,parentMessage:null})
+        .populate("sender","username displayName avatar")
+        .sort({createdAt:-1})
+        .skip((page-1)*limit)
         .limit(parseInt(limit));
 
-    // Reverse to send oldest first on frontend
-    return res.status(200).json(
-        new APIResponse(200, messages.reverse(), "Messages fetched successfully")
-    );
+    //Reverse to send oldest first on frontend
+    return res.status(200).json(new APIResponse(200,messages.reverse(),"Messages fetched successfully"));
 });
 
-// Send message
+//send message
 const sendMessage = asyncHandler(async (req, res) => {
     const { channelId } = req.params;
     const { content } = req.body;
