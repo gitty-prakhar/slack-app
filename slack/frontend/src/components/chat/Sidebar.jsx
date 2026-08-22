@@ -2,6 +2,7 @@ import { useState } from "react";
 import useWorkspaceStore from "../../store/workspaceStore";
 import useAuthStore from "../../store/authStore";
 import { useNavigate } from "react-router-dom";
+import api from "../../lib/api";
 
 export default function Sidebar({ onChannelSelect }) {
     const { activeWorkspace, channels, activeChannel, setActiveChannel, createChannel, unreadChannels } = useWorkspaceStore();
@@ -16,7 +17,9 @@ export default function Sidebar({ onChannelSelect }) {
     // Profile states
     const [showProfile, setShowProfile] = useState(false);
     const [editProfile, setEditProfile] = useState(false);
+    const [showPasswordForm, setShowPasswordForm] = useState(false);
     const [profileForm, setProfileForm] = useState({ displayName: "", bio: "", instagramId: "" });
+    const [passwordForm, setPasswordForm] = useState({ oldPassword: "", newPassword: "", confirmPassword: "" });
     const { updateProfile } = useAuthStore();
 
     const handleChannelClick = (ch) => {
@@ -57,6 +60,8 @@ export default function Sidebar({ onChannelSelect }) {
             instagramId: user?.instagramId || ""
         });
         setEditProfile(false);
+        setShowPasswordForm(false);
+        setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
         setShowProfile(true);
     };
 
@@ -67,6 +72,24 @@ export default function Sidebar({ onChannelSelect }) {
             setEditProfile(false);
         } catch (err) {
             alert(err.response?.data?.message || "Failed to update profile");
+        }
+    };
+
+    const handleChangePassword = async (e) => {
+        e.preventDefault();
+        if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+            return alert("New passwords do not match!");
+        }
+        try {
+            await api.patch("/users/change-password", {
+                oldPassword: passwordForm.oldPassword,
+                newPassword: passwordForm.newPassword
+            });
+            alert("Password changed successfully!");
+            setShowPasswordForm(false);
+            setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
+        } catch (err) {
+            alert(err.response?.data?.message || "Failed to change password");
         }
     };
 
@@ -201,7 +224,7 @@ export default function Sidebar({ onChannelSelect }) {
                                         <input
                                             value={profileForm.displayName}
                                             onChange={(e) => setProfileForm({ ...profileForm, displayName: e.target.value })}
-                                            style={{ width: "100%", background: "var(--input-bg)", border: "1px solid var(--border)", borderRadius: 4, padding: "8px" }}
+                                            style={{ width: "100%", background: "var(--input-bg)", border: "1px solid var(--border)", borderRadius: 4, padding: "8px", color: "#fff" }}
                                         />
                                     </div>
                                     <div className="form-group" style={{ marginBottom: 12 }}>
@@ -210,7 +233,7 @@ export default function Sidebar({ onChannelSelect }) {
                                             value={profileForm.bio}
                                             onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
                                             rows={3}
-                                            style={{ width: "100%", background: "var(--input-bg)", border: "1px solid var(--border)", borderRadius: 4, padding: "8px", resize: "none" }}
+                                            style={{ width: "100%", background: "var(--input-bg)", border: "1px solid var(--border)", borderRadius: 4, padding: "8px", resize: "none", color: "#fff" }}
                                         />
                                     </div>
                                     <div className="form-group" style={{ marginBottom: 12 }}>
@@ -219,12 +242,51 @@ export default function Sidebar({ onChannelSelect }) {
                                             value={profileForm.instagramId}
                                             onChange={(e) => setProfileForm({ ...profileForm, instagramId: e.target.value })}
                                             placeholder="e.g. prakhar_410"
-                                            style={{ width: "100%", background: "var(--input-bg)", border: "1px solid var(--border)", borderRadius: 4, padding: "8px" }}
+                                            style={{ width: "100%", background: "var(--input-bg)", border: "1px solid var(--border)", borderRadius: 4, padding: "8px", color: "#fff" }}
                                         />
                                     </div>
                                     <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
                                         <button type="button" className="btn" style={{ flex: 1, background: "var(--input-bg)" }} onClick={() => setEditProfile(false)}>Cancel</button>
                                         <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Save</button>
+                                    </div>
+                                </form>
+                            ) : showPasswordForm ? (
+                                <form onSubmit={handleChangePassword}>
+                                    <div className="form-group" style={{ marginBottom: 12 }}>
+                                        <label style={{ display: "block", marginBottom: 4, fontSize: 12, color: "var(--text-secondary)" }}>Old Password</label>
+                                        <input
+                                            type="password"
+                                            required
+                                            value={passwordForm.oldPassword}
+                                            onChange={(e) => setPasswordForm({ ...passwordForm, oldPassword: e.target.value })}
+                                            style={{ width: "100%", background: "var(--input-bg)", border: "1px solid var(--border)", borderRadius: 4, padding: "8px", color: "#fff" }}
+                                        />
+                                    </div>
+                                    <div className="form-group" style={{ marginBottom: 12 }}>
+                                        <label style={{ display: "block", marginBottom: 4, fontSize: 12, color: "var(--text-secondary)" }}>New Password</label>
+                                        <input
+                                            type="password"
+                                            required
+                                            minLength={8}
+                                            value={passwordForm.newPassword}
+                                            onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                                            style={{ width: "100%", background: "var(--input-bg)", border: "1px solid var(--border)", borderRadius: 4, padding: "8px", color: "#fff" }}
+                                        />
+                                    </div>
+                                    <div className="form-group" style={{ marginBottom: 12 }}>
+                                        <label style={{ display: "block", marginBottom: 4, fontSize: 12, color: "var(--text-secondary)" }}>Confirm New Password</label>
+                                        <input
+                                            type="password"
+                                            required
+                                            minLength={8}
+                                            value={passwordForm.confirmPassword}
+                                            onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                                            style={{ width: "100%", background: "var(--input-bg)", border: "1px solid var(--border)", borderRadius: 4, padding: "8px", color: "#fff" }}
+                                        />
+                                    </div>
+                                    <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+                                        <button type="button" className="btn" style={{ flex: 1, background: "var(--input-bg)" }} onClick={() => setShowPasswordForm(false)}>Cancel</button>
+                                        <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Update</button>
                                     </div>
                                 </form>
                             ) : (
@@ -241,9 +303,10 @@ export default function Sidebar({ onChannelSelect }) {
                                             </a>
                                         </div>
                                     )}
-                                    <div style={{ marginTop: 32, display: "flex", gap: 12 }}>
-                                        <button className="btn" style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }} onClick={() => setEditProfile(true)}>Edit Profile</button>
-                                        <button className="btn" style={{ flex: 1, background: "rgba(220, 53, 69, 0.1)", color: "#ff4b5c", border: "1px solid rgba(220, 53, 69, 0.2)" }} onClick={handleLogout}>Sign Out</button>
+                                    <div style={{ marginTop: 32, display: "flex", gap: 8 }}>
+                                        <button className="btn" style={{ flex: 1, padding: "6px 0", fontSize: 12, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }} onClick={() => setEditProfile(true)}>Edit Profile</button>
+                                        <button className="btn" style={{ flex: 1, padding: "6px 0", fontSize: 12, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }} onClick={() => setShowPasswordForm(true)}>Change Password</button>
+                                        <button className="btn" style={{ flex: 1, padding: "6px 0", fontSize: 12, background: "rgba(220, 53, 69, 0.1)", color: "#ff4b5c", border: "1px solid rgba(220, 53, 69, 0.2)" }} onClick={handleLogout}>Sign Out</button>
                                     </div>
                                 </div>
                             )}
