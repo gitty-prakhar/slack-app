@@ -176,11 +176,11 @@ export default function Sidebar({ onChannelSelect }) {
                             <button className="close-btn" onClick={() => setShowProfile(false)}>×</button>
                         </div>
                         <div className="modal-body">
-                            <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
-                                <div className="avatar lg">{user?.username?.[0]?.toUpperCase()}</div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24, paddingBottom: 16, borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                                <div className="avatar lg" style={{ width: 56, height: 56, fontSize: 24 }}>{user?.username?.[0]?.toUpperCase()}</div>
                                 <div>
-                                    <h3 style={{ margin: 0, fontSize: 18 }}>{user?.displayName || user?.username}</h3>
-                                    <p style={{ margin: 0, color: "var(--text-secondary)", fontSize: 14 }}>@{user?.username}</p>
+                                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>{user?.displayName || user?.username}</h3>
+                                    <p style={{ margin: "4px 0 0 0", color: "var(--text-secondary)", fontSize: 14 }}>@{user?.username}</p>
                                 </div>
                             </div>
 
@@ -219,21 +219,21 @@ export default function Sidebar({ onChannelSelect }) {
                                 </form>
                             ) : (
                                 <div>
-                                    <div style={{ marginBottom: 16 }}>
-                                        <strong style={{ display: "block", fontSize: 12, color: "var(--text-secondary)" }}>Bio</strong>
-                                        <p style={{ margin: "4px 0", fontSize: 14 }}>{user?.bio || "No bio added yet."}</p>
+                                    <div style={{ marginBottom: 20 }}>
+                                        <strong style={{ display: "block", fontSize: 13, color: "var(--text-secondary)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.5px" }}>Bio</strong>
+                                        <p style={{ margin: 0, fontSize: 15, color: "#fff", lineHeight: 1.5 }}>{user?.bio || "No bio added yet."}</p>
                                     </div>
                                     {user?.instagramId && (
-                                        <div style={{ marginBottom: 16 }}>
-                                            <strong style={{ display: "block", fontSize: 12, color: "var(--text-secondary)" }}>Instagram</strong>
-                                            <a href={`https://instagram.com/${user.instagramId}`} target="_blank" rel="noopener noreferrer" style={{ color: "var(--text-link)", textDecoration: "none" }}>
+                                        <div style={{ marginBottom: 20 }}>
+                                            <strong style={{ display: "block", fontSize: 13, color: "var(--text-secondary)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.5px" }}>Instagram</strong>
+                                            <a href={`https://instagram.com/${user.instagramId}`} target="_blank" rel="noopener noreferrer" style={{ color: "var(--text-link)", textDecoration: "none", fontSize: 15, display: "inline-flex", alignItems: "center", gap: 4 }}>
                                                 @{user.instagramId}
                                             </a>
                                         </div>
                                     )}
-                                    <div style={{ marginTop: 24, paddingTop: 16, borderTop: "1px solid var(--border)", display: "flex", justifyContent: "space-between" }}>
-                                        <button className="btn" onClick={() => setEditProfile(true)}>Edit Profile</button>
-                                        <button className="btn" style={{ color: "#dc3545", borderColor: "transparent", background: "transparent" }} onClick={handleLogout}>Sign Out</button>
+                                    <div style={{ marginTop: 32, display: "flex", gap: 12 }}>
+                                        <button className="btn" style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }} onClick={() => setEditProfile(true)}>Edit Profile</button>
+                                        <button className="btn" style={{ flex: 1, background: "rgba(220, 53, 69, 0.1)", color: "#ff4b5c", border: "1px solid rgba(220, 53, 69, 0.2)" }} onClick={handleLogout}>Sign Out</button>
                                     </div>
                                 </div>
                             )}

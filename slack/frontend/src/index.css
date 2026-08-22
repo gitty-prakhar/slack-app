@@ -676,11 +676,44 @@ a { text-decoration: none; color: inherit; }
   max-width: 460px;
 }
 
+.modal h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+}
+
 .modal h3 {
   font-size: 20px;
   font-weight: 900;
   color: #fff;
   margin-bottom: 20px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
 }
 
 .modal-actions {
