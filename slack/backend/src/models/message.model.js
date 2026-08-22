@@ -46,4 +46,7 @@ const messageSchema=new mongoose.Schema(
     { timestamps: true }
 );
 
+//text index on content for fast full-text search (used by searchMessages controller)
+messageSchema.index({content:"text"});
+
 export const Message=mongoose.model("Message",messageSchema);
