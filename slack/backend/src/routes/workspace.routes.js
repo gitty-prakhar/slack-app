@@ -7,6 +7,7 @@ import {
     getWorkspaceMembers 
 } from "../controllers/workspace.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { validate, createWorkspaceSchema } from "../middlewares/validate.middleware.js";
 
 const router = Router();
 
@@ -14,7 +15,7 @@ const router = Router();
 router.use(verifyJWT);
 
 router.route("/")
-    .post(createWorkspace)
+    .post(validate(createWorkspaceSchema), createWorkspace)
     .get(getUserWorkspaces);
 
 router.route("/:workspaceId")

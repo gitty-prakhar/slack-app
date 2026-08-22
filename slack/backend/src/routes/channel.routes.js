@@ -7,7 +7,7 @@ import {
 } from "../controllers/channel.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
-const router = Router();
+const router=Router();
 
 // All channel routes require authentication
 router.use(verifyJWT);

@@ -9,6 +9,7 @@ import {
     markAsRead 
 } from "../controllers/message.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { validate, sendMessageSchema } from "../middlewares/validate.middleware.js";
 
 const router = Router();
 
@@ -21,7 +22,7 @@ router.route("/search")
 
 router.route("/:channelId")
     .get(getMessages)
-    .post(sendMessage);
+    .post(validate(sendMessageSchema), sendMessage);
 
 router.route("/:messageId")
     .delete(deleteMessage);
