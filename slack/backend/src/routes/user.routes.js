@@ -15,6 +15,25 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { authLimiter } from "../middlewares/rateLimiter.middleware.js";
 import { validate, registerSchema, loginSchema } from "../middlewares/validate.middleware.js";
 
+/**
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: User management and authentication
+ * 
+ * /users/me:
+ *   get:
+ *     summary: Get current logged-in user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully fetched current user
+ *       401:
+ *         description: Unauthorized
+ */
+
 const router = Router();
 
 router.route("/register").post(authLimiter, validate(registerSchema), registerUser);

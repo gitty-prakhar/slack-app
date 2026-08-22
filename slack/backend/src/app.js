@@ -6,8 +6,14 @@ import helmet from "helmet";
 import morgan from "morgan";   
 import { globalLimiter } from "./middlewares/rateLimiter.middleware.js";
 import { requestId } from "./middlewares/requestId.middleware.js";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./utils/swagger.js";
+import { metricsMiddleware, register } from "./utils/metrics.js";
 
 const app=express();
+
+// Setup metrics middleware (needs to be early to catch all routes)
+app.use(metricsMiddleware);
 
 app.use(compression());
 
@@ -53,6 +59,22 @@ app.get("/api/v1/health",(req,res)=>{
         },
         timestamp:new Date().toISOString(),
     });
+});
+
+// Swagger API Documentation
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: "Slackr API Docs"
+}));
+
+// Prometheus Metrics Endpoint
+app.get("/metrics", async (req, res) => {
+    try {
+        res.set("Content-Type", register.contentType);
+        res.end(await register.metrics());
+    } catch (ex) {
+        res.status(500).end(ex);
+    }
 });
 
 // routes import
